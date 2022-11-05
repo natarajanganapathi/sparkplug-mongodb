@@ -21,7 +21,7 @@ public abstract class BaseRepository<T> where T : BaseModel
             return _collection;
         }
     }
-    public BaseRepository(DbContext context, ILogger<BaseRepository<T>> logger)
+    protected BaseRepository(DbContext context, ILogger<BaseRepository<T>> logger)
     {
         _context = context;
         _logger = logger;
