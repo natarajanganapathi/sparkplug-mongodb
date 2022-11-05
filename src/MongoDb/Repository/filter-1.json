@@ -1,0 +1,18 @@
+{
+    "and": {
+        "and": {
+            "key": "value",
+            "key2": "value2"
+        },
+        "or": {
+            "key3": "value3",
+            "key4": "value4"
+        },
+        "in":{
+            "key5": ["value5", "value6"]
+        },
+        "not_in":{
+            "key7": ["value7", "value8"]
+        }
+    }
+}

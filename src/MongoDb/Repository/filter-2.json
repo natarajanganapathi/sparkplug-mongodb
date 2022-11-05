@@ -1,0 +1,81 @@
+
+{
+    "condition": "and",
+    "rules": [
+        {
+            "condition": "and",
+            "rules": [
+                {
+                    "id": "key",
+                    "field": "key",
+                    "type": "string",
+                    "input": "text",
+                    "operator": "equal",
+                    "value": "value"
+                },
+                {
+                    "id": "key2",
+                    "field": "key2",
+                    "type": "string",
+                    "input": "text",
+                    "operator": "equal",
+                    "value": "value2"
+                }
+            ]
+        },
+        {
+            "condition": "or",
+            "rules": [
+                {
+                    "id": "key3",
+                    "field": "key3",
+                    "type": "string",
+                    "input": "text",
+                    "operator": "equal",
+                    "value": "value3"
+                },
+                {
+                    "id": "key4",
+                    "field": "key4",
+                    "type": "string",
+                    "input": "text",
+                    "operator": "equal",
+                    "value": "value4"
+                }
+            ]
+        },
+        {
+            "condition": "in",
+            "rules": [
+                {
+                    "id": "key5",
+                    "field": "key5",
+                    "type": "string",
+                    "input": "text",
+                    "operator": "in",
+                    "value": [
+                        "value5",
+                        "value6"
+                    ]
+                }
+            ]
+        },
+        {
+            "condition": "not_in",
+            "rules": [
+                {
+                    "id": "key7",
+                    "field": "key7",
+                    "type": "string",
+                    "input": "text",
+                    "operator": "not_in",
+                    "value": [
+                        "value7",
+                        "value8"
+                    ]
+                }
+            ]
+        }
+    ]
+
+}
