@@ -49,11 +49,13 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         shell: powershell
         run: |
+          echo "Unit Test Start"
+          .coverage\coverage\dotnet-coverage collect -f xml  -o 'coverage.xml' dotnet test test/MongoDb.Test/SparkPlug.MongoDb.Test.csproj --no-restore --no-build -c release --verbosity normal
+          echo "Sonar Scanner Analysis begin"
           .sonar\scanner\dotnet-sonarscanner begin /k:"natarajanganapathi_sparkplug-mongodb" /o:"natarajan-ganapathi" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.cs.vscoveragexml.reportsPaths=coverage.xml /d:sonar.host.url="${{ secrets.SONAR_HOST_URL }}"
           echo "Build Start"
           dotnet build src/MongoDb/SparkPlug.MongoDb.csproj --no-incremental
-          echo "Unit Test Start"
-          .coverage\coverage\dotnet-coverage collect -f xml  -o 'coverage.xml' dotnet test test/MongoDb.Test/SparkPlug.MongoDb.Test.csproj --no-restore --no-build -c release --verbosity normal
+          echo "Sonar Scanner Analysis end"
           .sonar\scanner\dotnet-sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
   # sonarcloud:
   #   name: SAST with Sonar Cloud
