@@ -38,7 +38,11 @@ jobs:
         run: |
           New-Item -Path .\.sonar\scanner -ItemType Directory
           dotnet tool update dotnet-sonarscanner --tool-path .\.sonar\scanner
-          dotnet tool install --global dotnet-coverage
+      - name: Install Dotnet Coverage tool
+        shell: powershell
+        run: |
+          New-Item -Path .\.coverage\coverage -ItemType Directory
+          dotnet tool install dotnet-coverage --tool-path .\.coverage\coverage
       - name: Build and analyze
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Needed to get PR information, if any
@@ -47,7 +51,7 @@ jobs:
         run: |
           .sonar\scanner\dotnet-sonarscanner begin /k:"natarajanganapathi_sparkplug-mongodb" /o:"natarajan-ganapathi" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.cs.vscoveragexml.reportsPaths=coverage.xml /d:sonar.host.url="${{ secrets.SONAR_HOST_URL }}"
           dotnet build src/MongoDb/SparkPlug.MongoDb.csproj --no-incremental
-          dotnet coverage collect -f xml  -o 'coverage.xml' dotnet test test/MongoDb.Test/SparkPlug.MongoDb.Test.csproj --no-restore --no-build -c release --verbosity normal
+          .coverage\coverage\dotnet coverage collect -f xml  -o 'coverage.xml' dotnet test test/MongoDb.Test/SparkPlug.MongoDb.Test.csproj --no-restore --no-build -c release --verbosity normal
           .sonar\scanner\dotnet-sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
   # sonarcloud:
   #   name: SAST with Sonar Cloud
