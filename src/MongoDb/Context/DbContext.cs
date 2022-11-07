@@ -4,7 +4,7 @@ public class DbContext
 {
     private readonly IMongoDatabase _database;
     private readonly IConfiguration _configuration;
-    const string MongoDb = nameof(MongoDb);
+    const string SparkPlugMongoDb = nameof(SparkPlugMongoDb);
     public DbContext(IConfiguration configuration)
     {
         _configuration = configuration;
@@ -17,10 +17,10 @@ public class DbContext
 
     private IMongoDatabase GetDatabase()
     {
-        var mongoDbSection = _configuration.GetSection(MongoDb);
+        var mongoDbSection = _configuration.GetSection(SparkPlugMongoDb);
         if (!mongoDbSection.Exists())
         {
-            throw new ArgumentException($"Missing configuration section {MongoDb}");
+            throw new ArgumentException($"Missing configuration section {SparkPlugMongoDb}");
         }
         var config = mongoDbSection.Get<MongoDbConfig>();
         MongoClientSettings settings = MongoClientSettings.FromUrl(new MongoUrl(config.ConnectionString));

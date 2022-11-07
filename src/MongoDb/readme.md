@@ -7,7 +7,7 @@ AppSettings.json file should contain the `MongoDb` section to get the mongodb co
 ```json
 {
     // Other settings
-    "MongoDb" :{
+    "SparkPlugMongoDb" :{
         "ConnectionString": "",
         "DatabaseName": ""
     },

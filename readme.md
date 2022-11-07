@@ -18,3 +18,4 @@
 
 1. [Dotnet Tools](https://learn.microsoft.com/en-us/dotnet/core/diagnostics/dotnet-counters)
 2. [Sonar Cloud - Code Coverage](https://docs.sonarcloud.io/enriching/test-coverage/dotnet-test-coverage/)
+3. [Sonar Cloud - Code Coverage](https://medium.com/agilix/collecting-test-coverage-using-coverlet-and-sonarqube-for-a-net-core-project-ef4a507d4b28)

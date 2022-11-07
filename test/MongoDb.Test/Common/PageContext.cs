@@ -3,7 +3,7 @@ namespace SparkPlug.MongoDb.Test.Common;
 public class PageContextTest
 {
     [Fact]
-    public void PageContext_Test()
+    public void Test_PageContext()
     {
         var pc = new PageContext();
         Assert.NotNull(pc);
