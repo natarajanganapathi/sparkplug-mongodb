@@ -68,14 +68,6 @@ public abstract class BaseRepository<T> where T : BaseModel
     {
         await Collection.InsertManyAsync(data);
     }
-
-    public async Task<UpdateResult> UpsertAsync(T data)
-    {
-        var filter = GetIdFilterDef(ObjectId.Parse(data.Id));
-        var update = GetUpdateDef(data);
-        return await UpsertAsync(filter, update);
-    }
-
     public async Task<UpdateResult> UpsertAsync(FilterDefinition<T> filter, UpdateDefinition<T> update)
     {
         return await Collection
@@ -88,7 +80,19 @@ public abstract class BaseRepository<T> where T : BaseModel
                      .UpdateOneAsync(filter, update, new UpdateOptions { IsUpsert = false });
     }
 
+    public async Task<UpdateResult> UpsertAsync(T data)
+    {
+        var filter = GetIdFilterDef(ObjectId.Parse(data.Id));
+        var update = GetUpdateDef(data);
+        return await UpsertAsync(filter, update);
+    }
     public async Task<UpdateResult> UpdateAsync(ObjectId id, T data)
+    {
+        var update = GetUpdateDef(data);
+        return await UpdateAsync(GetIdFilterDef(id), update);
+    }
+
+    public async Task<UpdateResult> UpdateAsync(ObjectId id, Object data)
     {
         var update = GetUpdateDef(data);
         return await UpdateAsync(GetIdFilterDef(id), update);
@@ -119,7 +123,7 @@ public abstract class BaseRepository<T> where T : BaseModel
 
     internal UpdateDefinition<T> GetUpdateDef(T data)
     {
-        var properties = typeof(T).GetProperties(BindingFlags.Public);
+        var properties = typeof(T).GetProperties();
         return GetUpdateDef(properties, data);
     }
 

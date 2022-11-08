@@ -7,16 +7,16 @@ AppSettings.json file should contain the `MongoDb` section to get the mongodb co
 ```json
 {
     // Other settings
-    "SparkPlugMongoDb" :{
-        "ConnectionString": "",
-        "DatabaseName": ""
-    },
     "Logging": {
         "LogLevel": {
             "Default": "Information",
             "Microsoft.AspNetCore": "Warning",
             "SparkPlug.MongoDb": "Error"
         }
+    },
+    "SparkPlugMongoDb" :{
+        "ConnectionString": "",
+        "DatabaseName": ""
     },
     // Other settings
 }
