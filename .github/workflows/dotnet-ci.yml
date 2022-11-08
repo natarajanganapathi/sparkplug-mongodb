@@ -3,6 +3,13 @@ name: Dotnet 6 Build
 on:
   push:
     branches: [ "main" ]
+    paths-ignore:
+      - '.vscode/**'
+      - 'sample/**'
+      - 'test/**'
+      - 'README.md',
+      - 'makefile',
+      - '.gitignore'
   pull_request:
     branches: [ "main" ]
 

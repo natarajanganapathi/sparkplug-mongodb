@@ -3,6 +3,12 @@ on:
   push:
     branches:
       - main # Default release branch, may also be named 'master' or 'develop'
+    paths-ignore:
+      - '.vscode/**'
+      - 'sample/**'
+      - 'test/**'
+      - 'makefile',
+      - '.gitignore'
 jobs:
   publish:
     name: Build, Pack & Publish
