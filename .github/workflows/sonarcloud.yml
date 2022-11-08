@@ -5,8 +5,8 @@ on:
     paths-ignore:
       - '.vscode/**'
       - 'sample/**'
-      - 'readme.md',
-      - 'makefile',
+      - 'readme.md'
+      - 'makefile'
       - '.gitignore'
     branches: [ "main" ]
   pull_request:

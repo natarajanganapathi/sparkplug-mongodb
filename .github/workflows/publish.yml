@@ -5,7 +5,7 @@ on:
       - '.vscode/**'
       - 'sample/**'
       - 'test/**'
-      - 'makefile',
+      - 'makefile'
       - '.gitignore'
     branches:
       - main # Default release branch, may also be named 'master' or 'develop'

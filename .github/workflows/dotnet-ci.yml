@@ -6,8 +6,8 @@ on:
       - '.vscode/**'
       - 'sample/**'
       - 'test/**'
-      - 'README.md',
-      - 'makefile',
+      - 'README.md'
+      - 'makefile'
       - '.gitignore'
     branches: [ "main" ]
   pull_request:
