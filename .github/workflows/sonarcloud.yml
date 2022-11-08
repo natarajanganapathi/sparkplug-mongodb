@@ -2,13 +2,13 @@ name: SAST With Sonar Cloud
 
 on:
   push:
-    branches: [ "main" ]
     paths-ignore:
       - '.vscode/**'
       - 'sample/**'
       - 'readme.md',
       - 'makefile',
       - '.gitignore'
+    branches: [ "main" ]
   pull_request:
     types: [opened, synchronize, reopened]
 
