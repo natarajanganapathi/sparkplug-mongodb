@@ -34,10 +34,11 @@ public class UserController : ControllerBase
     }
 
     [HttpPatch("{id}")]
-    public async Task Patch(String id, [FromBody] dynamic user)
+    public async Task Patch(String id, [FromBody] dynamic data)
     {
         var userId = ObjectId.Parse(id);
-        await _userRepository.UpdateAsync(userId, user);
+        var user = data.ToObject<User>();
+        await _userRepository.PatchAsync(userId, user);
     }
 
     [HttpDelete("{id}")]

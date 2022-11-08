@@ -1,6 +1,7 @@
 global using Microsoft.AspNetCore.Mvc;
 global using MongoDB.Driver;
 global using MongoDB.Bson;
+global using Microsoft.AspNetCore.Mvc.NewtonsoftJson;
 
 global using SparkPlug.Sample.DemoApi.Models;
 global using SparkPlug.Sample.DemoApi.Controllers;

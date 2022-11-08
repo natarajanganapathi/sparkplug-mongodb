@@ -73,28 +73,33 @@ public abstract class BaseRepository<T> where T : BaseModel
         return await Collection
                      .UpdateOneAsync(filter, update, new UpdateOptions { IsUpsert = true });
     }
-
-    public async Task<UpdateResult> UpdateAsync(FilterDefinition<T> filter, UpdateDefinition<T> update)
-    {
-        return await Collection
-                     .UpdateOneAsync(filter, update, new UpdateOptions { IsUpsert = false });
-    }
-
     public async Task<UpdateResult> UpsertAsync(T data)
     {
         var filter = GetIdFilterDef(ObjectId.Parse(data.Id));
         var update = GetUpdateDef(data);
         return await UpsertAsync(filter, update);
     }
+    public async Task<UpdateResult> UpdateAsync(FilterDefinition<T> filter, UpdateDefinition<T> update)
+    {
+        return await Collection
+                     .UpdateOneAsync(filter, update, new UpdateOptions { IsUpsert = false });
+    }
+
     public async Task<UpdateResult> UpdateAsync(ObjectId id, T data)
     {
         var update = GetUpdateDef(data);
         return await UpdateAsync(GetIdFilterDef(id), update);
     }
 
-    public async Task<UpdateResult> UpdateAsync(ObjectId id, Object data)
+    // public async Task<UpdateResult> UpdateAsync(ObjectId id, Object data)
+    // {
+    //     var update = GetUpdateDef(data);
+    //     return await UpdateAsync(GetIdFilterDef(id), update);
+    // }
+
+    public async Task<UpdateResult> PatchAsync(ObjectId id, T data)
     {
-        var update = GetUpdateDef(data);
+        var update = GetUpdateDef(data, true);
         return await UpdateAsync(GetIdFilterDef(id), update);
     }
 
@@ -121,26 +126,36 @@ public abstract class BaseRepository<T> where T : BaseModel
         return Collection.Find(filter);
     }
 
-    internal UpdateDefinition<T> GetUpdateDef(T data)
+    // internal UpdateDefinition<T> GetUpdateDef(T data)
+    // {
+    //     var properties = typeof(T).GetProperties();
+    //     return GetUpdateDef(properties, data);
+    // }
+
+    // internal UpdateDefinition<T> GetUpdateDef(Object data)
+    // {
+    //     var properties = data.GetType().GetProperties();
+    //     return GetUpdateDef(properties, data);
+    // }
+    internal UpdateDefinition<T> GetUpdateDef(T data, bool patch = false)
     {
         var properties = typeof(T).GetProperties();
-        return GetUpdateDef(properties, data);
-    }
-
-    internal UpdateDefinition<T> GetUpdateDef(Object data)
-    {
-        var properties = data.GetType().GetProperties();
-        return GetUpdateDef(properties, data);
-    }
-    internal UpdateDefinition<T> GetUpdateDef(PropertyInfo[] properties, Object data)
-    {
-        var update = GetUpdateDef();
-        foreach (var property in properties)
+        List<UpdateDefinition<T>> updates = new List<UpdateDefinition<T>>();
+        for (var i = 0; i < properties.Length; i++)
         {
+            var property = properties[i];
+            if (property.Name.Equals("Id", StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
             var val = property.GetValue(data);
-            update.Set(property.Name, val);
+            if (patch && val == null)
+            {
+                continue;
+            }
+            updates.Add(GetUpdateDef().Set(property.Name, val));
         }
-        return update.Combine();
+        return GetUpdateDef().Combine(updates);
     }
 
     public SortDefinitionBuilder<T> GetSortDef()
