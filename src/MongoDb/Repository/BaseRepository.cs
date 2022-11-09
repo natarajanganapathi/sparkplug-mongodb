@@ -30,7 +30,7 @@ public abstract class BaseRepository<T> where T : BaseModel
     public async Task<IEnumerable<T>> GetAsync(string[]? projection = null, FilterDefinition<T>? filter = null, SortDefinition<T>[]? sorts = null, PageContext? pc = null)
     {
         pc = pc != null ? pc : new PageContext();
-        filter = filter != null ? filter : GetFilterDef().Empty;
+        filter = filter != null ? filter : GetFilterBuilder().Empty;
         var query = GetByFilter(filter);
 
         if (projection != null && projection.Length > 0)
@@ -50,13 +50,13 @@ public abstract class BaseRepository<T> where T : BaseModel
 
     public async Task<T> GetByIdAsync(ObjectId id)
     {
-        var filter = GetIdFilterDef(id);
+        var filter = GetIdFilterDefinition(id);
         return await GetByFilter(filter).FirstOrDefaultAsync();
     }
 
     public async Task<List<T>> GetByIdsAsync(string[] ids)
     {
-        var filter = GetFilterDef().In(x => x.Id, ids);
+        var filter = GetFilterBuilder().In(x => x.Id, ids);
         return await GetByFilter(filter).ToListAsync();
     }
 
@@ -75,7 +75,7 @@ public abstract class BaseRepository<T> where T : BaseModel
     }
     public async Task<UpdateResult> UpsertAsync(T data)
     {
-        var filter = GetIdFilterDef(ObjectId.Parse(data.Id));
+        var filter = GetIdFilterDefinition(ObjectId.Parse(data.Id));
         var update = GetUpdateDef(data);
         return await UpsertAsync(filter, update);
     }
@@ -88,35 +88,29 @@ public abstract class BaseRepository<T> where T : BaseModel
     public async Task<UpdateResult> UpdateAsync(ObjectId id, T data)
     {
         var update = GetUpdateDef(data);
-        return await UpdateAsync(GetIdFilterDef(id), update);
+        return await UpdateAsync(GetIdFilterDefinition(id), update);
     }
-
-    // public async Task<UpdateResult> UpdateAsync(ObjectId id, Object data)
-    // {
-    //     var update = GetUpdateDef(data);
-    //     return await UpdateAsync(GetIdFilterDef(id), update);
-    // }
 
     public async Task<UpdateResult> PatchAsync(ObjectId id, T data)
     {
         var update = GetUpdateDef(data, true);
-        return await UpdateAsync(GetIdFilterDef(id), update);
+        return await UpdateAsync(GetIdFilterDefinition(id), update);
     }
 
     public async Task<ReplaceOneResult> ReplaceAsync(T data)
     {
         return await Collection
-                     .ReplaceOneAsync(GetIdFilterDef(ObjectId.Parse(data.Id)), data);
+                     .ReplaceOneAsync(GetIdFilterDefinition(ObjectId.Parse(data.Id)), data);
     }
     public async Task<long> DeleteAsync(ObjectId id)
     {
-        var result = await Collection.DeleteOneAsync(GetIdFilterDef(id));
+        var result = await Collection.DeleteOneAsync(GetIdFilterDefinition(id));
         return result.DeletedCount;
     }
 
     public async Task<long> GetCountAsync(FilterDefinition<T>? filter)
     {
-        filter = filter != null ? filter : GetFilterDef().Empty;
+        filter = filter != null ? filter : GetFilterBuilder().Empty;
         var result = Collection.Find(filter);
         return await result.CountDocumentsAsync().ConfigureAwait(false);
     }
@@ -126,17 +120,6 @@ public abstract class BaseRepository<T> where T : BaseModel
         return Collection.Find(filter);
     }
 
-    // internal UpdateDefinition<T> GetUpdateDef(T data)
-    // {
-    //     var properties = typeof(T).GetProperties();
-    //     return GetUpdateDef(properties, data);
-    // }
-
-    // internal UpdateDefinition<T> GetUpdateDef(Object data)
-    // {
-    //     var properties = data.GetType().GetProperties();
-    //     return GetUpdateDef(properties, data);
-    // }
     internal UpdateDefinition<T> GetUpdateDef(T data, bool patch = false)
     {
         var properties = typeof(T).GetProperties();
@@ -153,9 +136,9 @@ public abstract class BaseRepository<T> where T : BaseModel
             {
                 continue;
             }
-            updates.Add(GetUpdateDef().Set(property.Name, val));
+            updates.Add(GetUpdateBuilder().Set(property.Name, val));
         }
-        return GetUpdateDef().Combine(updates);
+        return GetUpdateBuilder().Combine(updates);
     }
 
     public SortDefinitionBuilder<T> GetSortDef()
@@ -173,16 +156,16 @@ public abstract class BaseRepository<T> where T : BaseModel
         }
         return sortDef;
     }
-    public FilterDefinitionBuilder<T> GetFilterDef()
+    public FilterDefinitionBuilder<T> GetFilterBuilder()
     {
         return Builders<T>.Filter;
     }
-    public FilterDefinition<T> GetIdFilterDef(ObjectId id)
+    public FilterDefinition<T> GetIdFilterDefinition(ObjectId id)
     {
-        return GetFilterDef().Eq("_id", id);
+        return GetFilterBuilder().Eq("_id", id);
     }
 
-    public UpdateDefinitionBuilder<T> GetUpdateDef()
+    public UpdateDefinitionBuilder<T> GetUpdateBuilder()
     {
         return Builders<T>.Update;
     }
