@@ -2,7 +2,7 @@ namespace SparkPlug.Common;
 
 public class ApiRequest
 {
-    public ApiRequest(string[]? select = null, Filter[]? where = null, Order[]? sort = null, PageContext? page = null)
+    public ApiRequest(string[]? select = null, Filter? where = null, Order[]? sort = null, PageContext? page = null)
     {
         Select = select;
         Where = where;
@@ -10,7 +10,7 @@ public class ApiRequest
         Page = page;
     }
     public string[]? Select { get; set; }
-    public Filter[]? Where { get; set; }
+    public Filter? Where { get; set; }
     public Order[]? Sort { get; set; }
     public PageContext? Page { get; set; }
 }
@@ -26,15 +26,14 @@ public static partial class Extensions
 
     public static ApiRequest Where(this ApiRequest request, Filter filter)
     {
-        request.Where = request.Where?.Concat(new[] { filter }).ToArray() ?? new[] { filter };
-        return request;
-    }
-    public static ApiRequest Where(this ApiRequest request, Filter[] filters)
-    {
-        request.Where = request.Where?.Concat(filters).ToArray() ?? filters;
+        request.Where = request.Where?.And(filter) ?? filter;
         return request;
     }
     public static ApiRequest Where(this ApiRequest request, string field, FieldOperator op, object value)
+    {
+        return request.Where(new Filter(field, op, value));
+    }
+    public static ApiRequest And(this ApiRequest request, string field, FieldOperator op, object value)
     {
         return request.Where(new Filter(field, op, value));
     }
