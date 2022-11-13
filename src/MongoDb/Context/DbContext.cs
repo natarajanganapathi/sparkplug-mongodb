@@ -3,13 +3,10 @@ namespace SparkPlug.MongoDb.Context;
 public class DbContext : IDbContext
 {
     private readonly IMongoDatabase _database;
-    private readonly MongoClient _mongoClient;
-    private readonly IConfiguration _configuration;
     const string SparkPlugMongoDb = nameof(SparkPlugMongoDb);
     public DbContext(IConfiguration configuration)
     {
-        _configuration = configuration;
-        var mongoDbSection = _configuration.GetSection(SparkPlugMongoDb);
+        var mongoDbSection = configuration.GetSection(SparkPlugMongoDb);
         if (!mongoDbSection.Exists())
         {
             throw new ArgumentException($"Missing configuration section {SparkPlugMongoDb}");
@@ -19,7 +16,7 @@ public class DbContext : IDbContext
         {
             throw new ArgumentException($"Missing configuration value {nameof(config.ConnectionString)}");
         }
-        _mongoClient = GetMongoClient(config.ConnectionString);
+        var _mongoClient = GetMongoClient(config.ConnectionString);
         _database = _mongoClient.GetDatabase(config.DatabaseName);
     }
     public IMongoDatabase Database => _database;
@@ -28,7 +25,7 @@ public class DbContext : IDbContext
         return _database.GetCollection<T>(collectionName);
     }
 
-    private MongoClient GetMongoClient(string connectionString)
+    private static MongoClient GetMongoClient(string connectionString)
     {
         var settings = MongoClientSettings.FromUrl(new MongoUrl(connectionString));
         settings.SslSettings = new SslSettings() { EnabledSslProtocols = SslProtocols.Tls12 };

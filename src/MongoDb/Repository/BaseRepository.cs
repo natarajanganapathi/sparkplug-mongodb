@@ -17,7 +17,7 @@ public abstract class BaseRepository<T> where T : BaseModel
             return _collection;
         }
     }
-    private String GetCollectionName(Type type)
+    private static String GetCollectionName(Type type)
     {
         var collectionName = type.GetCustomAttribute<CollectionAttribute>()?.Name;
         if (string.IsNullOrWhiteSpace(collectionName))
@@ -156,13 +156,13 @@ public abstract class BaseRepository<T> where T : BaseModel
     {
         return Builders<T>.Sort;
     }
-    public SortDefinition<T>[] GetSortDef(SortParam[] sorts)
+    public SortDefinition<T>[] GetSortDef(Order[] orders)
     {
-        var sortDef = new SortDefinition<T>[sorts.Length];
-        for (int i = 0; i < sorts.Length; i++)
+        var sortDef = new SortDefinition<T>[orders.Length];
+        for (int i = 0; i < orders.Length; i++)
         {
-            var sort = sorts[i];
-            var sortDefinition = sort.Order == SortOrder.Descending ? GetSortBuilder().Descending(sort.Field) : GetSortBuilder().Ascending(sort.Field);
+            var sort = orders[i];
+            var sortDefinition = sort.Direction == Direction.Descending ? GetSortBuilder().Descending(sort.Field) : GetSortBuilder().Ascending(sort.Field);
             sortDef[i] = sortDefinition;
         }
         return sortDef;
