@@ -1,4 +1,4 @@
-namespace SparkPlug.MongoDb.Repository;
+namespace SparkPlug.Common;
 public class Order
 {
     public Order(string field, Direction direction)

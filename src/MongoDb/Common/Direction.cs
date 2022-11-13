@@ -1,3 +1,3 @@
-namespace SparkPlug.MongoDb.Repository;
+namespace SparkPlug.Common;
 
 public enum Direction { Ascending, Descending }

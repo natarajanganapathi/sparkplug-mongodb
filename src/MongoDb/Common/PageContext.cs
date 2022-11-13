@@ -11,7 +11,7 @@ public class PageContext
     public int Skip => (PageNo > 1 ? PageNo - 1 : 0) * PageSize;
 }
 
-public static class Extensions
+public static partial class Extensions
 {
     public static PageContext NextPage(this PageContext pc)
     {
