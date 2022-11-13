@@ -2,7 +2,7 @@ namespace SparkPlug.MongoDb.Repository;
 
 public abstract class BaseRepository<T> where T : BaseModel
 {
-    internal readonly DbContext _context;
+    internal readonly IDbContext _context;
     internal readonly ILogger<BaseRepository<T>> _logger;
     private IMongoCollection<T>? _collection;
     internal virtual IMongoCollection<T> Collection
@@ -11,38 +11,48 @@ public abstract class BaseRepository<T> where T : BaseModel
         {
             if (_collection == null)
             {
-                var collectionName = typeof(T).GetCustomAttribute<CollectionAttribute>()?.Name;
-                if (string.IsNullOrWhiteSpace(collectionName))
-                {
-                    collectionName = typeof(T).Name;
-                }
+                var collectionName = GetCollectionName(typeof(T));
                 _collection = _context.GetCollection<T>(collectionName);
             }
             return _collection;
         }
     }
-    protected BaseRepository(DbContext context, ILogger<BaseRepository<T>> logger)
+    private String GetCollectionName(Type type)
+    {
+        var collectionName = type.GetCustomAttribute<CollectionAttribute>()?.Name;
+        if (string.IsNullOrWhiteSpace(collectionName))
+        {
+            collectionName = typeof(T).Name;
+        }
+        return collectionName;
+    }
+    protected BaseRepository(IDbContext context, ILogger<BaseRepository<T>> logger)
     {
         _context = context;
         _logger = logger;
     }
 
-    public async Task<IEnumerable<T>> GetAsync(string[]? projection = null, FilterDefinition<T>? filter = null, SortDefinition<T>[]? sorts = null, PageContext? pc = null)
+    public async Task<IEnumerable<T>> GetAsync(string[]? projections = null, FilterDefinition<T>? filter = null, SortDefinition<T>[]? sorts = null, PageContext? pc = null)
+    {
+        var projectionDef = projections?.Select(x => GetProjectionBuilder().Include(x)).ToArray();
+        return await GetAsync(GetProjectionBuilder().Combine(projectionDef), filter, GetSortBuilder().Combine(sorts), pc);
+    }
+
+    private async Task<IEnumerable<T>> GetAsync(ProjectionDefinition<T>? projection = null, FilterDefinition<T>? filter = null, SortDefinition<T>? sorts = null, PageContext? pc = null)
     {
         pc = pc != null ? pc : new PageContext();
-        filter = filter != null ? filter : GetFilterBuilder().Empty;
-        var query = GetByFilter(filter);
-
-        if (projection != null && projection.Length > 0)
+        if (filter == null)
         {
-            projection.Select(x => GetProjectionDef().Include(x))
-            .ToList()
-            .ForEach(x => query = query.Project(x) as IFindFluent<T, T>);
+            filter = GetFilterBuilder().Empty;
         }
-        if (sorts != null && sorts.Any())
+        var query = GetByFilter(filter);
+        if (projection != null)
         {
-            var sort = GetSortDef().Combine(sorts);
-            query = query.Sort(sort);
+            query.Project(projection);
+        }
+        if (sorts != null)
+        {
+            query.Sort(sorts);
         }
         var result = await query.Skip(pc.Skip).Limit(pc.PageSize).ToListAsync();
         return result;
@@ -81,8 +91,9 @@ public abstract class BaseRepository<T> where T : BaseModel
     }
     public async Task<UpdateResult> UpdateAsync(FilterDefinition<T> filter, UpdateDefinition<T> update)
     {
-        return await Collection
+        var result = await Collection
                      .UpdateOneAsync(filter, update, new UpdateOptions { IsUpsert = false });
+        return result;
     }
 
     public async Task<UpdateResult> UpdateAsync(ObjectId id, T data)
@@ -141,7 +152,7 @@ public abstract class BaseRepository<T> where T : BaseModel
         return GetUpdateBuilder().Combine(updates);
     }
 
-    public SortDefinitionBuilder<T> GetSortDef()
+    public SortDefinitionBuilder<T> GetSortBuilder()
     {
         return Builders<T>.Sort;
     }
@@ -151,7 +162,7 @@ public abstract class BaseRepository<T> where T : BaseModel
         for (int i = 0; i < sorts.Length; i++)
         {
             var sort = sorts[i];
-            var sortDefinition = sort.Order == SortOrder.Descending ? GetSortDef().Descending(sort.Field) : GetSortDef().Ascending(sort.Field);
+            var sortDefinition = sort.Order == SortOrder.Descending ? GetSortBuilder().Descending(sort.Field) : GetSortBuilder().Ascending(sort.Field);
             sortDef[i] = sortDefinition;
         }
         return sortDef;
@@ -170,7 +181,7 @@ public abstract class BaseRepository<T> where T : BaseModel
         return Builders<T>.Update;
     }
 
-    public ProjectionDefinitionBuilder<T> GetProjectionDef()
+    public ProjectionDefinitionBuilder<T> GetProjectionBuilder()
     {
         return Builders<T>.Projection;
     }
