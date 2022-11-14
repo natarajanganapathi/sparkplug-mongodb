@@ -15,52 +15,74 @@ public class ApiRequest
     public PageContext? Page { get; set; }
 }
 
-
 public static partial class Extensions
 {
+    #region Select
     public static ApiRequest Select(this ApiRequest request, params string[] fields)
     {
         request.Select = request.Select?.Concat(fields).ToArray() ?? fields;
         return request;
     }
-
+    #endregion
+    #region Where
+    public static ApiRequest Where(this ApiRequest request, string field, FieldOperator op, object value)
+    {
+        return request.Where(new Filter(field, op, value));
+    }
     public static ApiRequest Where(this ApiRequest request, Filter filter)
     {
         request.Where = request.Where?.And(filter) ?? filter;
         return request;
     }
-    public static ApiRequest Where(this ApiRequest request, string field, FieldOperator op, object value)
+    public static ApiRequest Where(this ApiRequest request, Action<Filter> filter)
     {
-        return request.Where(new Filter(field, op, value));
+        var f = request.Where ?? new Filter();
+        filter(f);
+        return request.Where(f);
     }
+    #endregion
+    #region Composite FilterOperators
     public static ApiRequest And(this ApiRequest request, string field, FieldOperator op, object value)
     {
         return request.Where(new Filter(field, op, value));
     }
+    public static ApiRequest Or(this ApiRequest request, string field, FieldOperator op, object value)
+    {
+        return request.Where(new Filter(field, op, value));
+    }
+    #endregion
+    #region Sort
+    public static ApiRequest Sort(this ApiRequest request, string field, Direction direction)
+    {
+        return request.Sort(new Order(field, direction));
+    }
     public static ApiRequest Sort(this ApiRequest request, Order order)
     {
-        request.Sort = request.Sort?.Concat(new[] { order }).ToArray() ?? new[] { order };
-        return request;
+        return request.Sort(new[] { order });
     }
     public static ApiRequest Sort(this ApiRequest request, Order[] orders)
     {
         request.Sort = request.Sort?.Concat(orders).ToArray() ?? orders;
         return request;
     }
-    public static ApiRequest Sort(this ApiRequest request, string field, Direction direction)
+    #endregion
+    #region PageContext
+    public static ApiRequest Page(this ApiRequest request, int pageNo, int pageSize)
     {
-        return request.Sort(new Order(field, direction));
+        return request.Page(new PageContext(pageNo, pageSize));
     }
-
     public static ApiRequest Page(this ApiRequest request, PageContext page)
     {
         request.Page = page;
         return request;
     }
-
-    public static ApiRequest Page(this ApiRequest request, int pageNo, int pageSize)
+    public static ApiRequest NextPage(this ApiRequest request)
     {
-        request.Page = new PageContext(pageNo, pageSize);
-        return request;
+        if (request.Page == null)
+        {
+            throw new InvalidOperationException("PageContext is not set");
+        }
+        return request.Page(request.Page.NextPage());
     }
+    #endregion
 }
