@@ -16,10 +16,11 @@ public class Test_ApiRequest
     [Fact]
     public void Create_ApiRequest_With_Constructor_Perameter()
     {
-        var ar = new ApiRequest(new string[] { "id", "name" }, new Filter("id", FieldOperator.Equal, "1"), new Order[] { new Order("id", Direction.Ascending) }, new PageContext(10, 100));
+        var ar = new ApiRequest(new string[] { "id", "name" }, new FieldFilter("id", FieldOperator.Equal, "1"), new Order[] { new Order("id", Direction.Ascending) }, new PageContext(10, 100));
         Assert.NotNull(ar);
+        var where = ar.Where as FieldFilter;
         Assert.Equal(new string[] { "id", "name" }, ar.Select);
-        Assert.Equal("id", ar.Where?.FieldFilter?.Field);
+        Assert.Equal("id", where?.Field);
         Assert.Equal("id", ar.Sort?.First().Field);
         Assert.Equal(10, ar.Page?.PageNo);
     }
@@ -40,8 +41,10 @@ public class Test_ApiRequest
             .Sort("id", Direction.Ascending)
             .Page(10, 100);
 
+        var where = ar.Where as FieldFilter;
+
         Assert.Equal(new string[] { "id", "name" }, ar.Select);
-        Assert.Equal("id", ar.Where?.FieldFilter?.Field);
+        Assert.Equal("id", where?.Field);
         Assert.Equal("id", ar.Sort?.First().Field);
         Assert.Equal(10, ar.Page?.PageNo);
     }
@@ -52,13 +55,45 @@ public class Test_ApiRequest
         var ar = new ApiRequest()
             .Select("id", "name")
             .Where("id", FieldOperator.Equal, "1")
-            .And("name", FieldOperator.Equal, "test")
+            .Where("name", FieldOperator.Equal, "test")
             .Sort("id", Direction.Ascending)
             .Page(new PageContext(10, 100));
 
+        var where = ar.Where as CompositeFilter;
+        var op = where?.Op;
+
         Assert.Equal(new string[] { "id", "name" }, ar.Select);
-        Assert.Equal("id", ar.Where?.CompositeFilter?.Filters?.First().FieldFilter?.Field);
+        Assert.Equal("id", (where?.Filters?.First() as FieldFilter)?.Field);
         Assert.Equal("id", ar.Sort?.First().Field);
         Assert.Equal(10, ar.Page?.PageNo);
     }
+
+    [Fact]
+    public void ExampleQuery()
+    {
+        var ar = new ApiRequest()
+            .Select("id", "name")
+            .Where("id", FieldOperator.Equal, "1")
+            .Where("name", FieldOperator.Equal, "test")
+            .OrWhere((cf) =>
+            {
+                return cf.Where("id", FieldOperator.Equal, "2")
+                 .Where("name", FieldOperator.Equal, "test2");
+            })
+            .Sort("id", Direction.Ascending)
+            .Page(new PageContext(10, 100));
+    }
+
+    // [Fact]
+    // public void ExampleWhereQueryBuilder()
+    // {
+    //     var where = new CompositeFilter("id", FieldOperator.Equal, "1")
+    //         .And("name", FieldOperator.Equal, "test")
+    //         .Or(() =>
+    //         {
+    //             return new CompositeFilter()
+    //                 .Where("id", FieldOperator.Equal, "2")
+    //                 .Where("name", FieldOperator.Equal, "test2");
+    //         });
+    // }
 }

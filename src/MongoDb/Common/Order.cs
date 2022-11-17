@@ -1,4 +1,7 @@
 namespace SparkPlug.Common;
+
+public enum Direction { Ascending, Descending }
+
 public class Order
 {
     public Order(string field, Direction direction)

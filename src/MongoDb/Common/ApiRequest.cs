@@ -2,7 +2,7 @@ namespace SparkPlug.Common;
 
 public class ApiRequest
 {
-    public ApiRequest(string[]? select = null, Filter? where = null, Order[]? sort = null, PageContext? page = null)
+    public ApiRequest(string[]? select = null, IFilter? where = null, Order[]? sort = null, PageContext? page = null)
     {
         Select = select;
         Where = where;
@@ -10,7 +10,7 @@ public class ApiRequest
         Page = page;
     }
     public string[]? Select { get; set; }
-    public Filter? Where { get; set; }
+    public IFilter? Where { get; set; }
     public Order[]? Sort { get; set; }
     public PageContext? Page { get; set; }
 }
@@ -25,31 +25,46 @@ public static partial class Extensions
     }
     #endregion
     #region Where
-    public static ApiRequest Where(this ApiRequest request, string field, FieldOperator op, object value)
+    public static ApiRequest AndWhere(this ApiRequest request, Func<IFilter[]> filterAction)
     {
-        return request.Where(new Filter(field, op, value));
-    }
-    public static ApiRequest Where(this ApiRequest request, Filter filter)
-    {
-        request.Where = request.Where?.And(filter) ?? filter;
+        var cf = new CompositeFilter(CompositeOperator.And);
+        cf.Filters = filterAction();
+        request.Where(cf);
         return request;
     }
-    public static ApiRequest Where(this ApiRequest request, Action<Filter> filter)
+    public static ApiRequest OrWhere(this ApiRequest request, Func<CompositeFilter, CompositeFilter> filterAction)
     {
-        var f = request.Where ?? new Filter();
-        filter(f);
-        return request.Where(f);
+        var cf = new CompositeFilter(CompositeOperator.Or);
+        cf = filterAction(cf);
+        request.Where(cf);
+        return request;
     }
-    #endregion
-    #region Composite FilterOperators
-    public static ApiRequest And(this ApiRequest request, string field, FieldOperator op, object value)
+    public static ApiRequest Where(this ApiRequest request, string field, FieldOperator op, object value)
     {
-        return request.Where(new Filter(field, op, value));
+        return request.Where(new FieldFilter(field, op, value));
     }
-    public static ApiRequest Or(this ApiRequest request, string field, FieldOperator op, object value)
+    public static ApiRequest Where(this ApiRequest request, IFilter filter)
     {
-        return request.Where(new Filter(field, op, value));
+        if (request.Where is null)
+        {
+            request.Where = filter;
+        }
+        else if (request.Where is CompositeFilter)
+        {
+            var source = (CompositeFilter)request.Where;
+            if (filter is CompositeFilter)
+            {
+                request.Where = new CompositeFilter(CompositeOperator.And, new[] { request.Where, filter });
+            }
+            source.Filters = source.Filters?.Append(filter).ToArray() ?? new[] { filter };
+        }
+        else
+        {
+            request.Where = new CompositeFilter(CompositeOperator.And, new[] { request.Where, filter });
+        }
+        return request;
     }
+
     #endregion
     #region Sort
     public static ApiRequest Sort(this ApiRequest request, string field, Direction direction)
