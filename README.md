@@ -24,3 +24,4 @@
 6. [Dynamically Generated Controller](https://www.strathweb.com/2018/04/generic-and-dynamically-generated-controllers-in-asp-net-core-mvc/)
 7. [Structured Query](https://firebase.google.com/docs/firestore/reference/rest/v1/StructuredQuery)
 8. [Structured Query Example](https://www.jeansnyman.com/posts/google-firestore-rest-api-examples/)
+9. [MongoDb Changestream](https://stackoverflow.com/questions/51474747/how-to-use-mongodb-changestream-with-c)

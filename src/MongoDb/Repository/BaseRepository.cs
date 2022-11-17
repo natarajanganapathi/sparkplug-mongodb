@@ -5,7 +5,7 @@ public abstract class BaseRepository<T> where T : BaseModel
     internal readonly IDbContext _context;
     internal readonly ILogger<BaseRepository<T>> _logger;
     private IMongoCollection<T>? _collection;
-    internal virtual IMongoCollection<T> Collection
+    public virtual IMongoCollection<T> Collection
     {
         get
         {
@@ -34,8 +34,10 @@ public abstract class BaseRepository<T> where T : BaseModel
 
     public async Task<IEnumerable<T>> GetAsync(string[]? projections = null, FilterDefinition<T>? filter = null, SortDefinition<T>[]? sorts = null, PageContext? pc = null)
     {
-        var projectionDef = projections?.Select(x => GetProjectionBuilder().Include(x)).ToArray();
-        return await GetAsync(GetProjectionBuilder().Combine(projectionDef), filter, GetSortBuilder().Combine(sorts), pc);
+        var projectionDefArray = projections?.Select(x => GetProjectionBuilder().Include(x)).ToArray();
+        var projectionDef = projectionDefArray != null && projectionDefArray.Length > 0 ? GetProjectionBuilder().Combine(projectionDefArray) : null;
+        var sort = sorts != null && sorts.Length > 0 ? GetSortBuilder().Combine(sorts) : null;
+        return await GetAsync(projectionDef, filter, sort, pc);
     }
 
     private async Task<IEnumerable<T>> GetAsync(ProjectionDefinition<T>? projection = null, FilterDefinition<T>? filter = null, SortDefinition<T>? sorts = null, PageContext? pc = null)
@@ -171,7 +173,7 @@ public abstract class BaseRepository<T> where T : BaseModel
     {
         return Builders<T>.Filter;
     }
-    public FilterDefinition<T> GetIdFilterDefinition(ObjectId id)
+    public virtual FilterDefinition<T> GetIdFilterDefinition(ObjectId id)
     {
         return GetFilterBuilder().Eq("_id", id);
     }
@@ -184,5 +186,28 @@ public abstract class BaseRepository<T> where T : BaseModel
     public ProjectionDefinitionBuilder<T> GetProjectionBuilder()
     {
         return Builders<T>.Projection;
+    }
+
+    public PipelineDefinition<ChangeStreamDocument<BsonDocument>, BsonDocument> GetPipelineDefinition()
+    {
+        var pipeline = new EmptyPipelineDefinition<ChangeStreamDocument<BsonDocument>>()
+                .Match(x => x.OperationType == ChangeStreamOperationType.Insert || x.OperationType == ChangeStreamOperationType.Update || x.OperationType == ChangeStreamOperationType.Replace)
+                .AppendStage<ChangeStreamDocument<BsonDocument>, ChangeStreamDocument<BsonDocument>, BsonDocument>("{ $project: { '_id': 1, 'fullDocument': 1, 'ns': 1, 'documentKey': 1 }}");
+        return pipeline;
+    }
+
+    public ChangeStreamOptions GetChangeStreamOptions(ChangeStreamFullDocumentOption option)
+    {
+        return new ChangeStreamOptions { FullDocument = option };
+    }
+
+    public IChangeStreamCursor<BsonDocument> GetChangeStreamCursor(ChangeStreamFullDocumentOption fullDocOption = ChangeStreamFullDocumentOption.UpdateLookup)
+    {
+        var optons = GetChangeStreamOptions(fullDocOption);
+        var pipeline = GetPipelineDefinition();
+        var result = _context.GetCollection<BsonDocument>(GetCollectionName(typeof(T)))
+                             .Watch(pipeline, optons);
+
+        return result;
     }
 }
