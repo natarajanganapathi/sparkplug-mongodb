@@ -8,7 +8,7 @@ public enum CompositeOperator
 
 public class CompositeFilter : IFilter
 {
-    public CompositeFilter(CompositeOperator op = CompositeOperator.And, IFilter[]? filters = null)
+    public CompositeFilter(CompositeOperator op = CompositeOperator.And, params IFilter[]? filters)
     {
         Op = op;
         Filters = filters;
@@ -17,26 +17,46 @@ public class CompositeFilter : IFilter
     public IFilter[]? Filters { get; set; }
 }
 
-
 public static partial class Extensions
 {
-    public static CompositeFilter Where(this CompositeFilter where, string field, FieldOperator op, object value)
+    public static CompositeFilter AndEqual(this CompositeFilter source, string field, object value)
     {
-        var filter = new FieldFilter(field, op, value);
-        where.Where(filter);
-        return where;
+        return source.And(field, FieldOperator.Equal, value);
     }
-    public static CompositeFilter Where(this CompositeFilter where, IConditionFilter filter)
+    public static CompositeFilter And(this CompositeFilter source, string field, FieldOperator op, object value)
     {
-        where.Filters = where.Filters?.Append(filter).ToArray() ?? new[] { filter };
-        return where;
+        return source.And(new FieldFilter(field, op, value));
     }
-    public static CompositeFilter And(this CompositeFilter source, IFilter filter)
+    public static CompositeFilter And(this CompositeFilter source, IConditionFilter filter)
     {
-        return new CompositeFilter(CompositeOperator.And, source.Filters?.Prepend(filter).ToArray());
+        if (source.Op == CompositeOperator.And)
+        {
+            source.Filters = source.Filters?.Prepend(filter).ToArray() ?? new[] { filter };
+        }
+        else
+        {
+            source = new CompositeFilter(CompositeOperator.And, source, filter);
+        }
+        return source;
     }
-    public static CompositeFilter Or(this CompositeFilter source, IFilter filter)
+    public static CompositeFilter And(this CompositeFilter source, Func<CompositeFilter, CompositeFilter> filterAction)
     {
-        return new CompositeFilter(CompositeOperator.Or, source.Filters?.Prepend(filter).ToArray());
+        var filter = filterAction(new CompositeFilter(CompositeOperator.And));
+        return source.And(filter);
+    }
+    public static CompositeFilter And(this CompositeFilter source, CompositeFilter filter)
+    {
+        if (filter != null)
+        {
+            if (source.Op == filter.Op && filter.Filters != null)
+            {
+                source.Filters = source.Filters?.Concat(filter.Filters).ToArray() ?? new[] { filter };
+            }
+            else
+            {
+                source = new CompositeFilter(CompositeOperator.And, source, filter);
+            }
+        }
+        return source;
     }
 }

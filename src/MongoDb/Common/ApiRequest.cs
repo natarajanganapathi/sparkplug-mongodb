@@ -25,19 +25,13 @@ public static partial class Extensions
     }
     #endregion
     #region Where
-    public static ApiRequest AndWhere(this ApiRequest request, Func<IFilter[]> filterAction)
+    public static ApiRequest AndWhere(this ApiRequest request, Func<CompositeFilter, CompositeFilter> filterAction)
     {
-        var cf = new CompositeFilter(CompositeOperator.And);
-        cf.Filters = filterAction();
-        request.Where(cf);
-        return request;
+        return request.Where(filterAction(new CompositeFilter(CompositeOperator.And)));
     }
     public static ApiRequest OrWhere(this ApiRequest request, Func<CompositeFilter, CompositeFilter> filterAction)
     {
-        var cf = new CompositeFilter(CompositeOperator.Or);
-        cf = filterAction(cf);
-        request.Where(cf);
-        return request;
+        return request.Where(filterAction(new CompositeFilter(CompositeOperator.Or)));
     }
     public static ApiRequest Where(this ApiRequest request, string field, FieldOperator op, object value)
     {
@@ -45,23 +39,7 @@ public static partial class Extensions
     }
     public static ApiRequest Where(this ApiRequest request, IFilter filter)
     {
-        if (request.Where is null)
-        {
-            request.Where = filter;
-        }
-        else if (request.Where is CompositeFilter)
-        {
-            var source = (CompositeFilter)request.Where;
-            if (filter is CompositeFilter)
-            {
-                request.Where = new CompositeFilter(CompositeOperator.And, new[] { request.Where, filter });
-            }
-            source.Filters = source.Filters?.Append(filter).ToArray() ?? new[] { filter };
-        }
-        else
-        {
-            request.Where = new CompositeFilter(CompositeOperator.And, new[] { request.Where, filter });
-        }
+        request.Where = request.Where == null ? filter : new CompositeFilter(CompositeOperator.And, request.Where, filter);
         return request;
     }
 

@@ -75,25 +75,16 @@ public class Test_ApiRequest
             .Select("id", "name")
             .Where("id", FieldOperator.Equal, "1")
             .Where("name", FieldOperator.Equal, "test")
-            .OrWhere((cf) =>
-            {
-                return cf.Where("id", FieldOperator.Equal, "2")
-                 .Where("name", FieldOperator.Equal, "test2");
-            })
+            .OrWhere((cf) => cf.AndEqual("id", "2").AndEqual("name", "test2"))
             .Sort("id", Direction.Ascending)
             .Page(new PageContext(10, 100));
     }
 
-    // [Fact]
-    // public void ExampleWhereQueryBuilder()
-    // {
-    //     var where = new CompositeFilter("id", FieldOperator.Equal, "1")
-    //         .And("name", FieldOperator.Equal, "test")
-    //         .Or(() =>
-    //         {
-    //             return new CompositeFilter()
-    //                 .Where("id", FieldOperator.Equal, "2")
-    //                 .Where("name", FieldOperator.Equal, "test2");
-    //         });
-    // }
+    [Fact]
+    public void ExampleWhereQueryBuilder()
+    {
+        var where = new CompositeFilter(CompositeOperator.And)
+            .AndEqual("name", "test")
+            .And((cf) => cf.AndEqual("id", "2").AndEqual("name", "test2"));
+    }
 }
