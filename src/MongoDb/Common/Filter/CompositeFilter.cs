@@ -19,25 +19,36 @@ public class CompositeFilter : IFilter
 
 public static partial class Extensions
 {
+    #region And
     public static CompositeFilter AndEqual(this CompositeFilter source, string field, object value)
-    {
-        return source.And(field, FieldOperator.Equal, value);
-    }
+        => source.And(field, FieldOperator.Equal, value);
+    public static CompositeFilter AndNotEqual(this CompositeFilter source, string field, object value)
+        => source.And(field, FieldOperator.NotEqual, value);
+    public static CompositeFilter AndGreaterThan(this CompositeFilter source, string field, object value)
+        => source.And(field, FieldOperator.GreaterThan, value);
+    public static CompositeFilter AndGreaterThanOrEqual(this CompositeFilter source, string field, object value)
+        => source.And(field, FieldOperator.GreaterThanOrEqual, value);
+    public static CompositeFilter AndLessThan(this CompositeFilter source, string field, object value)
+        => source.And(field, FieldOperator.LessThan, value);
+    public static CompositeFilter AndLessThanOrEqual(this CompositeFilter source, string field, object value)
+        => source.And(field, FieldOperator.LessThanOrEqual, value);
+    public static CompositeFilter AndIn(this CompositeFilter source, string field, object[] values)
+        => source.And(field, FieldOperator.In, values);
+    public static CompositeFilter AndNotIn(this CompositeFilter source, string field, object[] values)
+        => source.And(field, FieldOperator.NotIn, values);
+    public static CompositeFilter AndExists(this CompositeFilter source, string field, bool exists = true)
+        => source.And(field, FieldOperator.Exists, exists);
+    public static CompositeFilter AndNotExists(this CompositeFilter source, string field)
+        => source.And(field, FieldOperator.Exists, false);
     public static CompositeFilter And(this CompositeFilter source, string field, FieldOperator op, object value)
     {
         return source.And(new FieldFilter(field, op, value));
     }
     public static CompositeFilter And(this CompositeFilter source, IConditionFilter filter)
     {
-        if (source.Op == CompositeOperator.And)
-        {
-            source.Filters = source.Filters?.Prepend(filter).ToArray() ?? new[] { filter };
-        }
-        else
-        {
-            source = new CompositeFilter(CompositeOperator.And, source, filter);
-        }
-        return source;
+        return (source.Op == CompositeOperator.And)
+            ? AddConditionFilter(source, filter)
+            : new CompositeFilter(CompositeOperator.And, source, filter);
     }
     public static CompositeFilter And(this CompositeFilter source, Func<CompositeFilter, CompositeFilter> filterAction)
     {
@@ -46,17 +57,67 @@ public static partial class Extensions
     }
     public static CompositeFilter And(this CompositeFilter source, CompositeFilter filter)
     {
-        if (filter != null)
+        return source.Op == filter.Op
+            ? MergeFilters(source, filter)
+            : new CompositeFilter(CompositeOperator.And, source, filter);
+    }
+    #endregion
+    #region Or
+    public static CompositeFilter OrEqual(this CompositeFilter source, string field, object value)
+        => source.Or(field, FieldOperator.Equal, value);
+    public static CompositeFilter OrNotEqual(this CompositeFilter source, string field, object value)
+        => source.Or(field, FieldOperator.NotEqual, value);
+    public static CompositeFilter OrGreaterThan(this CompositeFilter source, string field, object value)
+        => source.Or(field, FieldOperator.GreaterThan, value);
+    public static CompositeFilter OrGreaterThanOrEqual(this CompositeFilter source, string field, object value)
+        => source.Or(field, FieldOperator.GreaterThanOrEqual, value);
+    public static CompositeFilter OrLessThan(this CompositeFilter source, string field, object value)
+        => source.Or(field, FieldOperator.LessThan, value);
+    public static CompositeFilter OrLessThanOrEqual(this CompositeFilter source, string field, object value)
+        => source.Or(field, FieldOperator.LessThanOrEqual, value);
+    public static CompositeFilter OrIn(this CompositeFilter source, string field, object[] values)
+        => source.Or(field, FieldOperator.In, values);
+    public static CompositeFilter OrNotIn(this CompositeFilter source, string field, object[] values)
+        => source.Or(field, FieldOperator.NotIn, values);
+    public static CompositeFilter OrExists(this CompositeFilter source, string field, bool exists = true)
+        => source.Or(field, FieldOperator.Exists, exists);
+    public static CompositeFilter OrNotExists(this CompositeFilter source, string field)
+        => source.Or(field, FieldOperator.Exists, false);
+    public static CompositeFilter Or(this CompositeFilter source, string field, FieldOperator op, object value)
+    {
+        return source.Or(new FieldFilter(field, op, value));
+    }
+    public static CompositeFilter Or(this CompositeFilter source, IConditionFilter filter)
+    {
+        return (source.Op == CompositeOperator.Or)
+            ? AddConditionFilter(source, filter)
+            : new CompositeFilter(CompositeOperator.And, source, filter);
+    }
+    public static CompositeFilter Or(this CompositeFilter source, Func<CompositeFilter, CompositeFilter> filterAction)
+    {
+        var filter = filterAction(new CompositeFilter(CompositeOperator.Or));
+        return source.Or(filter);
+    }
+    public static CompositeFilter Or(this CompositeFilter source, CompositeFilter filter)
+    {
+        return source.Op == filter.Op
+            ? MergeFilters(source, filter)
+            : new CompositeFilter(CompositeOperator.Or, source, filter);
+    }
+    #endregion
+    #region Common
+    private static CompositeFilter MergeFilters(this CompositeFilter source, CompositeFilter filter)
+    {
+        if (filter.Filters != null)
         {
-            if (source.Op == filter.Op && filter.Filters != null)
-            {
-                source.Filters = source.Filters?.Concat(filter.Filters).ToArray() ?? new[] { filter };
-            }
-            else
-            {
-                source = new CompositeFilter(CompositeOperator.And, source, filter);
-            }
+            source.Filters = source.Filters?.Concat(filter.Filters).ToArray() ?? new[] { filter };
         }
         return source;
     }
+    private static CompositeFilter AddConditionFilter(this CompositeFilter source, IConditionFilter filter)
+    {
+        source.Filters = source.Filters?.Prepend(filter).ToArray() ?? new[] { filter };
+        return source;
+    }
+    #endregion
 }
