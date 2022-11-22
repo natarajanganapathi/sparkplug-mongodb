@@ -1,22 +1,24 @@
 namespace SparkPlug.MongoDb.Test.Common;
 
-public class Test_ApiRequest
+public class Test_QueryRequest
 {
     [Fact]
-    public void Create_ApiRequest_With_No_Constructor_Perameter()
+    public void Create_QueryRequest_With_No_Constructor_Perameter()
     {
-        var ar = new ApiRequest();
+        var ar = new QueryRequest();
         Assert.NotNull(ar);
         Assert.Null(ar.Select);
         Assert.Null(ar.Where);
         Assert.Null(ar.Sort);
         Assert.Null(ar.Page);
+        Assert.Null(ar.Having);
+        Assert.Null(ar.Group);
     }
 
     [Fact]
-    public void Create_ApiRequest_With_Constructor_Perameter()
+    public void Create_QueryRequest_With_Constructor_Perameter()
     {
-        var ar = new ApiRequest(new string[] { "id", "name" }, new FieldFilter("id", FieldOperator.Equal, "1"), new Order[] { new Order("id", Direction.Ascending) }, new PageContext(10, 100));
+        var ar = new QueryRequest(new string[] { "id", "name" }, new FieldFilter("id", FieldOperator.Equal, "1"), new Order[] { new Order("id", Direction.Ascending) }, new PageContext(10, 100));
         Assert.NotNull(ar);
         var where = ar.Where as FieldFilter;
         Assert.Equal(new string[] { "id", "name" }, ar.Select);
@@ -28,14 +30,14 @@ public class Test_ApiRequest
     [Fact]
     public void Verify_Api_Select()
     {
-        var ar = new ApiRequest().Select("id", "name");
+        var ar = new QueryRequest().Select("id", "name");
         Assert.Equal(new string[] { "id", "name" }, ar.Select);
     }
 
     [Fact]
     public void Create_Request_Dynamically()
     {
-        var ar = new ApiRequest()
+        var ar = new QueryRequest()
             .Select("id", "name")
             .Where("id", FieldOperator.Equal, "1")
             .Sort("id", Direction.Ascending)
@@ -52,7 +54,7 @@ public class Test_ApiRequest
     [Fact]
     public void Create_Request_Dynamically_With_And_Condition()
     {
-        var ar = new ApiRequest()
+        var ar = new QueryRequest()
             .Select("id", "name")
             .Where("id", FieldOperator.Equal, "1")
             .Where("name", FieldOperator.Equal, "test")
@@ -71,7 +73,7 @@ public class Test_ApiRequest
     [Fact]
     public void ExampleQuery()
     {
-        var ar = new ApiRequest()
+        var ar = new QueryRequest()
             .Select("id", "name")
             .Where("id", FieldOperator.Equal, "1")
             .Where("name", FieldOperator.Equal, "test")

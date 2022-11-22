@@ -1,5 +1,6 @@
 namespace SparkPlug.Common;
-public class PageContext
+
+public class PageContext : IPageContext
 {
     public PageContext(int pageNo = 1, int pageSize = 10)
     {
@@ -13,7 +14,7 @@ public class PageContext
 
 public static partial class Extensions
 {
-    public static PageContext NextPage(this PageContext pc)
+    public static IPageContext NextPage(this IPageContext pc)
     {
         pc.PageNo++;
         return pc;

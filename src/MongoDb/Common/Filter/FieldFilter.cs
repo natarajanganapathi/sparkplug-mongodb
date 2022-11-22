@@ -26,7 +26,7 @@ public enum FieldOperator
     BitsAnySet
 }
 
-public class FieldFilter : IConditionFilter
+public class FieldFilter : IFieldFilter
 {
     public FieldFilter(string field, FieldOperator op, object value)
     {

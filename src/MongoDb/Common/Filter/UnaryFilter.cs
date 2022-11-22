@@ -1,10 +1,11 @@
 namespace SparkPlug.Common;
+
 public enum UnaryOperator
 {
     Not
 }
 
-public class UnaryFilter : IConditionFilter
+public class UnaryFilter : IUnaryFilter
 {
     public UnaryFilter(UnaryOperator op, String field)
     {
