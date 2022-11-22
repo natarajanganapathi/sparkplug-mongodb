@@ -13,6 +13,7 @@ global using System.Threading;
 global using System.Text;
 global using Microsoft.Extensions.Configuration;
 global using Microsoft.Extensions.Logging;
+global using System.Runtime.Serialization;
 
 global using SparkPlug.MongoDb;
 global using SparkPlug.MongoDb.Attributes;

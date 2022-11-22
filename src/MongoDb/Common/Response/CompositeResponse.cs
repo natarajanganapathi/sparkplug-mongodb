@@ -1,6 +1,7 @@
 namespace SparkPlug.Common;
 
-public class CompositeResponse : Dictionary<string, IApiResponse>, ICompositeResponse
+[Serializable]
+public class CompositeResponse : Dictionary<string, IApiResponse>, ICompositeResponse, ISerializable
 {
    
 }
