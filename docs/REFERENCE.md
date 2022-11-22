@@ -9,4 +9,6 @@
 6. [Dynamically Generated Controller](https://www.strathweb.com/2018/04/generic-and-dynamically-generated-controllers-in-asp-net-core-mvc/)
 7. [Structured Query](https://firebase.google.com/docs/firestore/reference/rest/v1/StructuredQuery)
 8. [Structured Query Example](https://www.jeansnyman.com/posts/google-firestore-rest-api-examples/)
-9. [Mongo DB Sample Query in JS](https://www.bmc.com/blogs/mongodb-operators/#:~:text=MongoDB%20offers%20the%20following%20query%20operator%20types%3A%201,5%20Geospatial%206%20Array%207%20Bitwise%208%20Comments)
+9. [MongoDb Changestream](https://stackoverflow.com/questions/51474747/how-to-use-mongodb-changestream-with-c)
+10. [Mongo DB Sample Query in JS](https://www.bmc.com/blogs/mongodb-operators/#:~:text=MongoDB%20offers%20the%20following%20query%20operator%20types%3A%201,5%20Geospatial%206%20Array%207%20Bitwise%208%20Comments)
+
