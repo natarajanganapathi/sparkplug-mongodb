@@ -1,7 +1,7 @@
 namespace SparkPlug.Common;
 
 [Serializable]
-public class CompositeRequest : Dictionary<string, IApiRequest>,  ICompositeRequest, ISerializable
+public class CompositeRequest : Dictionary<string, IApiRequest>,  ICompositeRequest
 {
-   
+  
 }
