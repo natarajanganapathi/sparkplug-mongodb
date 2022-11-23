@@ -18,7 +18,7 @@ public static partial class Extensions
     #region QueryResponse
     public static IQueryResponse AddResponse(this IQueryResponse source, Object data)
     {
-        return source.AddResponse(data);
+        return source.AddResponse(new Object[] { data });
     }
     public static IQueryResponse AddResponse(this IQueryResponse source, Object[] data)
     {
@@ -30,7 +30,7 @@ public static partial class Extensions
         source.Page = pc;
         return source;
     }
-     public static IQueryResponse AddTotalRecord(this IQueryResponse source, int total)
+    public static IQueryResponse AddTotalRecord(this IQueryResponse source, int total)
     {
         source.Total = total;
         return source;
