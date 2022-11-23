@@ -1,6 +1,6 @@
 namespace SparkPlug.Common;
 
-public class ApiRequest : IApiRequest
+public abstract class ApiRequest : IApiRequest
 {
     public string[]? Depends { get; set; }
 }

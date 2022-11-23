@@ -1,10 +1,10 @@
 namespace SparkPlug.Common;
 
-public class CommandResponse : ICommandResponse
+public class CommandResponse : ApiResponse, ICommandResponse
 {
-    public object? Data { get; set; }
-    public string? Message { get; set; }
-    public bool? Success { get { return Error == null; } }
-    public string? Error { get; set; }
-    public string? StackTrace { get; set; }
+    public CommandResponse(string? code = null, string? message = null, Object? data = null) : base(code, message)
+    {
+        Data = data;
+    }
+    public Object? Data { get; set; }
 }

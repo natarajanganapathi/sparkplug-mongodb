@@ -20,6 +20,7 @@ public interface ICommandRequest : IApiRequest
     object? Data { get; set; }
 }
 
-public interface ICompositeRequest : IDictionary<String, IApiRequest>
+public interface ICompositeRequest : IApiRequest
 {
+    Dictionary<string, IApiRequest>? Requests { get; set; }
 }
