@@ -1,11 +1,11 @@
-namespace SparkPlug.Common;
+namespace SparkPlug.Api.Abstractions;
 
 public interface IApiRequest
 {
     public string[]? Depends { get; set; }
 }
 
-public interface IQueryRequest : IApiRequest
+public interface IQueryRequest<TEntity> : IApiRequest
 {
     string[]? Select { get; set; }
     IFilter? Where { get; set; }
@@ -15,9 +15,9 @@ public interface IQueryRequest : IApiRequest
     IPageContext? Page { get; set; }
 }
 
-public interface ICommandRequest : IApiRequest
+public interface ICommandRequest<TEntity> : IApiRequest
 {
-    object? Data { get; set; }
+    TEntity? Data { get; set; }
 }
 
 public interface ICompositeRequest : IApiRequest

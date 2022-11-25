@@ -1,3 +1,15 @@
+# Nuget Publish Process
+
+1. License file and README file is mandatory.
+2. Upload directly into nuget for first time to understand the issue better. 
+3. Generate the Token in API Token page
+4. Use nuget command to push the package
+
+```sh
+dotnet nuget push *.nupkg -s https://api.nuget.org/v3/index.json -k ${{secrets.NUGET_API_KEY}} --skip-duplicate --no-symbols
+```
+
+```xml
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
@@ -10,11 +22,6 @@
     <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="6.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="6.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="6.0.0" />
-    <PackageReference Include="MongoDB.Bson" Version="2.10.0" />
-    <PackageReference Include="MongoDB.Driver.Core" Version="2.10.0" />
     <PackageReference Include="MongoDB.Driver" Version="2.10.0" />
   </ItemGroup>
   <ItemGroup>
@@ -22,3 +29,6 @@
       <None Include="LICENSE.txt" Pack="true" PackagePath="LICENSE.txt"/>
   </ItemGroup>
 </Project>
+
+
+```

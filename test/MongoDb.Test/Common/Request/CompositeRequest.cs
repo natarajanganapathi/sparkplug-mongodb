@@ -14,9 +14,9 @@ public class Test_CompositeRequest
     public void Create_CompositeRequest_Dynamically()
     {
         var comr = new CompositeRequest()
-            .Add("CommandRequest", new CommandRequest())
-            .Add("QueryRequest", new QueryRequest())
-            .Add("UpdateRequest", new CommandRequest());
+            .Add("CommandRequest", new CommandRequest<Int32>())
+            .Add("QueryRequest", new QueryRequest<Int32>())
+            .Add("UpdateRequest", new CommandRequest<Int32>());
 
         Assert.NotNull(comr);
         Assert.Equal(3, comr.Requests?.Count);

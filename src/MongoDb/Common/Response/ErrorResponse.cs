@@ -1,4 +1,4 @@
-namespace SparkPlug.Common;
+namespace SparkPlug.Api.Abstractions;
 
 public class ErrorResponse : ApiResponse, IErrorResponse
 {

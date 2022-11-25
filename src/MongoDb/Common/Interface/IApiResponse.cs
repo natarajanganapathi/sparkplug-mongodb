@@ -1,4 +1,4 @@
-namespace SparkPlug.Common;
+namespace SparkPlug.Api.Abstractions;
 
 public interface IApiResponse
 {
@@ -11,16 +11,16 @@ public interface IErrorResponse : IApiResponse
     string? StackTrace { get; set; }
 }
 
-public interface IQueryResponse : IApiResponse
+public interface IQueryResponse<TEntity> : IApiResponse
 {
     int? Total { get; set; }
     IPageContext? Page { get; set; }
-    Object[]? Data { get; set; }
+    TEntity[]? Data { get; set; }
 }
 
-public interface ICommandResponse : IApiResponse
+public interface ICommandResponse<TEntity> : IApiResponse
 {
-    Object? Data { get; set; }
+    TEntity? Data { get; set; }
 }
 
 public interface ICompositeResponse : IApiResponse

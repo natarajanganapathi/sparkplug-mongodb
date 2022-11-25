@@ -5,8 +5,8 @@ public class Test_CommmandRequest
     [Fact]
     public void Create_CommandRequest_With_No_Constructor_Perameter()
     {
-        var cr = new CommandRequest();
+        var cr = new CommandRequest<Int32>();
         Assert.NotNull(cr);
-        Assert.Null(cr.Data);
+        Assert.Equal(0, cr.Data);
     }
 }

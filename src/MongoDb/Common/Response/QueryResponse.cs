@@ -1,8 +1,8 @@
-namespace SparkPlug.Common;
+namespace SparkPlug.Api.Abstractions;
 
-public class QueryResponse : ApiResponse, IQueryResponse
+public class QueryResponse<TEntity> : ApiResponse, IQueryResponse<TEntity>
 {
-    public QueryResponse(string? code = null, string? message = null, Object[]? data = null, PageContext? pc = null, int? total = null) : base(code, message)
+    public QueryResponse(string? code = null, string? message = null, TEntity[]? data = default(TEntity[]), PageContext? pc = null, int? total = null) : base(code, message)
     {
         Data = data;
         Page = pc;
@@ -10,27 +10,27 @@ public class QueryResponse : ApiResponse, IQueryResponse
     }
     public int? Total { get; set; }
     public IPageContext? Page { get; set; }
-    public Object[]? Data { get; set; }
+    public TEntity[]? Data { get; set; }
 }
 
 public static partial class Extensions
 {
     #region QueryResponse
-    public static IQueryResponse AddResponse(this IQueryResponse source, Object data)
+    public static IQueryResponse<TEntity> AddResponse<TEntity>(this IQueryResponse<TEntity> source, TEntity data)
     {
-        return source.AddResponse(new Object[] { data });
+        return source.AddResponse(new TEntity[] { data });
     }
-    public static IQueryResponse AddResponse(this IQueryResponse source, Object[] data)
+    public static IQueryResponse<TEntity> AddResponse<TEntity>(this IQueryResponse<TEntity> source, TEntity[] data)
     {
-        source.Data = source.Data?.Prepend(data).ToArray() ?? data;
+        source.Data = source.Data?.Concat(data).ToArray() ?? data;
         return source;
     }
-    public static IQueryResponse AddPageContext(this IQueryResponse source, IPageContext pc)
+    public static IQueryResponse<TEntity> AddPageContext<TEntity>(this IQueryResponse<TEntity> source, IPageContext pc)
     {
         source.Page = pc;
         return source;
     }
-    public static IQueryResponse AddTotalRecord(this IQueryResponse source, int total)
+    public static IQueryResponse<TEntity> AddTotalRecord<TEntity>(this IQueryResponse<TEntity> source, int total)
     {
         source.Total = total;
         return source;

@@ -23,3 +23,4 @@ global using SparkPlug.MongoDb.Repository;
 global using SparkPlug.MongoDb.Config;
 
 global using SparkPlug.Common;
+global using SparkPlug.Api.Abstractions;

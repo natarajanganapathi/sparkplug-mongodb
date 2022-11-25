@@ -1,10 +1,10 @@
-namespace SparkPlug.Common;
+namespace SparkPlug.Api.Abstractions;
 
-public class CommandRequest : ApiRequest, ICommandRequest
+public class CommandRequest<TEntity> : ApiRequest, ICommandRequest<TEntity>
 {
-    public CommandRequest(object? data = null)
+    public CommandRequest(TEntity? data = default(TEntity))
     {
         Data = data;
     }
-    public object? Data { get; set; }
+    public TEntity? Data { get; set; }
 }

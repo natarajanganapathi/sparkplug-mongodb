@@ -9,5 +9,6 @@ global using SparkPlug.MongoDb;
 global using SparkPlug.MongoDb.Test.Common;
 global using SparkPlug.MongoDb.Config;
 global using SparkPlug.MongoDb.Context;
+global using SparkPlug.Api.Abstractions;
 
 

@@ -1,13 +1,13 @@
 namespace SparkPlug.Common;
 
-public interface IRepository<T>
+public interface IRepository<TId, TEntity>
 {
-    Task<IEnumerable<T>> ListAsync(IQueryRequest request);
-    Task<T> GetAsync(Object Id);
-    Task<T> CreateAsync(T entity);
-    Task<T> UpdateAsync(Object Id, T entity);
-    Task<T> PatchAsync(Object Id, T entity);
-    Task<T> ReplaceAsync(Object Id, T entity);
-    Task<T> DeleteAsync(Object Id);
-    Task<long> GetCountAsync(IQueryRequest request);
+    Task<IEnumerable<TEntity>> ListAsync(IQueryRequest<TEntity> request);
+    Task<TEntity> GetAsync(TId Id);
+    Task<TEntity> CreateAsync(ICommandRequest<TEntity> entity);
+    Task<TEntity> UpdateAsync(TId Id, ICommandRequest<TEntity> entity);
+    Task<TEntity> PatchAsync(TId Id, ICommandRequest<TEntity> entity);
+    Task<TEntity> ReplaceAsync(TId Id, ICommandRequest<TEntity> entity);
+    Task<TEntity> DeleteAsync(TId Id);
+    Task<long> GetCountAsync(IQueryRequest<TEntity> request);
 }

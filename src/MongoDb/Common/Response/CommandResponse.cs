@@ -1,10 +1,10 @@
-namespace SparkPlug.Common;
+namespace SparkPlug.Api.Abstractions;
 
-public class CommandResponse : ApiResponse, ICommandResponse
+public class CommandResponse<TEntity> : ApiResponse, ICommandResponse<TEntity>
 {
-    public CommandResponse(string? code = null, string? message = null, Object? data = null) : base(code, message)
+    public CommandResponse(string? code = null, string? message = null, TEntity? data = default(TEntity)) : base(code, message)
     {
         Data = data;
     }
-    public Object? Data { get; set; }
+    public TEntity? Data { get; set; }
 }
