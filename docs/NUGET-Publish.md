@@ -22,7 +22,7 @@ dotnet nuget push *.nupkg -s https://api.nuget.org/v3/index.json -k ${{secrets.N
     <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="MongoDB.Driver" Version="2.10.0" />
+    <!-- Your Dependency Packages list  -->
   </ItemGroup>
   <ItemGroup>
       <None Include="README.md" Pack="true" PackagePath="README.md"/>

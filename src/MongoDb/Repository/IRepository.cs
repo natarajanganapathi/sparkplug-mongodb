@@ -1,4 +1,4 @@
-namespace SparkPlug.Common;
+namespace SparkPlug.MongoDb;
 
 public interface IRepository<TId, TEntity>
 {

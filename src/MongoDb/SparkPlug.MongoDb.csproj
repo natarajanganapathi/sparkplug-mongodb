@@ -16,9 +16,10 @@
     <PackageReference Include="MongoDB.Bson" Version="2.10.0" />
     <PackageReference Include="MongoDB.Driver.Core" Version="2.10.0" />
     <PackageReference Include="MongoDB.Driver" Version="2.10.0" />
+    <PackageReference Include="SparkPlug.Api.Abstractions" Version="0.0.1-alpha1" />
   </ItemGroup>
   <ItemGroup>
-      <None Include="README.md" Pack="true" PackagePath="README.md"/>
-      <None Include="LICENSE.txt" Pack="true" PackagePath="LICENSE.txt"/>
+      <None Include="README.md" Pack="true" PackagePath="README.md" />
+      <None Include="LICENSE.txt" Pack="true" PackagePath="LICENSE.txt" />
   </ItemGroup>
 </Project>
