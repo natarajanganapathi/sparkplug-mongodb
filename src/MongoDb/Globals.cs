@@ -24,3 +24,5 @@ global using SparkPlug.MongoDb.Config;
 
 global using SparkPlug.Common;
 global using SparkPlug.Api.Abstractions;
+
+global using SparkPlug.Persistence.Abstractions;

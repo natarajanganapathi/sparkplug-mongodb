@@ -1,6 +1,6 @@
 namespace SparkPlug.MongoDb.Repository;
 
-public abstract class MongoRepository<TId, TEntity> : SparkPlug.MongoDb.IRepository<TId, TEntity> where TEntity : BaseModel<TId>, new()
+public abstract class MongoRepository<TId, TEntity> : SparkPlug.Persistence.Abstractions.IRepository<TId, TEntity> where TEntity : BaseModel<TId>, new()
 {
     internal readonly IDbContext _context;
     internal readonly ILogger<MongoRepository<TId, TEntity>> _logger;
@@ -71,20 +71,20 @@ public abstract class MongoRepository<TId, TEntity> : SparkPlug.MongoDb.IReposit
     }
     public async Task<TEntity> CreateAsync(ICommandRequest<TEntity> request)
     {
-        var entity = request.Data ?? throw new ArgumentNullException(nameof(ICommandRequest<TEntity>.Data));
+        var entity = request.Data ?? throw new CreateEntityException();
         await Collection.InsertOneAsync(entity);
         return entity;
     }
     public async Task<TEntity[]> CreateManyAsync(ICommandRequest<TEntity[]> requests)
     {
-        var entities = requests.Data ?? throw new ArgumentNullException(nameof(ICommandRequest<TEntity[]>.Data));
+        var entities = requests.Data ?? throw new CreateEntityException();
         await Collection.InsertManyAsync(entities);
         return entities;
     }
     public async Task<TEntity> UpdateAsync(TId id, ICommandRequest<TEntity> request)
     {
         id = id ?? throw new ArgumentNullException(nameof(id));
-        var entity = request.Data ?? throw new ArgumentNullException(nameof(ICommandRequest<TEntity>.Data));
+        var entity = request.Data ?? throw new UpdateEntityException();
         var filter = GetIdFilterDefinition(id);
         var update = GetUpdateDef(entity);
         await UpdateAsync(filter, update);
@@ -99,7 +99,7 @@ public abstract class MongoRepository<TId, TEntity> : SparkPlug.MongoDb.IReposit
     public async Task<TEntity> PatchAsync(TId id, ICommandRequest<TEntity> request)
     {
         id = id ?? throw new ArgumentNullException(nameof(id));
-        var entity = request.Data ?? throw new ArgumentNullException(nameof(ICommandRequest<TEntity>.Data));
+        var entity = request.Data ?? throw new UpdateEntityException();
         var filter = GetIdFilterDefinition(id);
         var update = GetUpdateDef(entity, true);
         await UpdateAsync(filter, update);
@@ -109,13 +109,13 @@ public abstract class MongoRepository<TId, TEntity> : SparkPlug.MongoDb.IReposit
     public async Task<TEntity> ReplaceAsync(TId id, ICommandRequest<TEntity> request)
     {
         id = id ?? throw new ArgumentNullException(nameof(id));
-        var entity = request.Data ?? throw new ArgumentNullException(nameof(ICommandRequest<TEntity>.Data));
+        var entity = request.Data ?? throw new UpdateEntityException();
         await Collection.ReplaceOneAsync(GetIdFilterDefinition(id), entity);
         return entity;
     }
     public async Task<TEntity> DeleteAsync(TId id)
     {
-        id = id ?? throw new ArgumentNullException(nameof(id));
+        id = id ?? throw new DeleteEntityException();
         var result = await Collection.DeleteOneAsync(GetIdFilterDefinition(id));
         return result.IsAcknowledged && result.DeletedCount > 0 ? new TEntity() : throw new Exception("Delete failed");
     }
@@ -213,7 +213,7 @@ public abstract class MongoRepository<TId, TEntity> : SparkPlug.MongoDb.IReposit
     }
     private FilterDefinition<TEntity>? GetFilter(IFilter? filter)
     {
-        filter = filter ?? throw new ArgumentNullException(nameof(filter));
+        filter = filter ?? throw new GetEntityException();
         var builder = GetFilterBuilder();
         return filter.GetFilter(builder);
     }

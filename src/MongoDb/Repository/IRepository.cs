@@ -1,4 +1,4 @@
-namespace SparkPlug.MongoDb;
+namespace SparkPlug.Persistence.Abstractions;
 
 public interface IRepository<TId, TEntity>
 {
