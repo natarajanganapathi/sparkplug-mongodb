@@ -26,7 +26,7 @@ public abstract class MongoRepository<TId, TEntity> : SparkPlug.MongoDb.IReposit
         }
         return collectionName;
     }
-    public MongoRepository(IDbContext context, ILogger<MongoRepository<TId, TEntity>> logger)
+    protected MongoRepository(IDbContext context, ILogger<MongoRepository<TId, TEntity>> logger)
     {
         _context = context;
         _logger = logger;
@@ -43,67 +43,6 @@ public abstract class MongoRepository<TId, TEntity> : SparkPlug.MongoDb.IReposit
     {
         var filter = GetIdFilterDefinition(id);
         return await GetByFilter(filter).FirstOrDefaultAsync();
-    }
-    public async Task<TEntity[]> GetManyAsync(TId[] ids)
-    {
-        var filter = GetFilterBuilder().In(x => x.Id, ids);
-        var result = await GetByFilter(filter).ToListAsync();
-        return result.ToArray();
-    }
-    public async Task<TEntity> CreateAsync(ICommandRequest<TEntity> request)
-    {
-        var entity = request.Data ?? throw new ArgumentNullException(nameof(request.Data));
-        await Collection.InsertOneAsync(entity);
-        return entity;
-    }
-    public async Task<TEntity[]> CreateManyAsync(ICommandRequest<TEntity[]> requests)
-    {
-        var entities = requests.Data ?? throw new ArgumentNullException(nameof(requests.Data));
-        await Collection.InsertManyAsync(entities);
-        return entities;
-    }
-    public async Task<TEntity> UpdateAsync(TId id, ICommandRequest<TEntity> request)
-    {
-        id = id ?? throw new ArgumentNullException(nameof(id));
-        var entity = request.Data ?? throw new ArgumentNullException(nameof(request.Data));
-        var filter = GetIdFilterDefinition(id);
-        var update = GetUpdateDef(entity);
-        await UpdateAsync(filter, update);
-        return entity;
-    }
-    public async Task<TEntity> PatchAsync(TId id, ICommandRequest<TEntity> request)
-    {
-        id = id ?? throw new ArgumentNullException(nameof(id));
-        var entity = request.Data ?? throw new ArgumentNullException(nameof(request.Data));
-        var filter = GetIdFilterDefinition(id);
-        var update = GetUpdateDef(entity, true);
-        await UpdateAsync(filter, update);
-        return entity;
-    }
-    public async Task<UpdateResult> UpdateAsync(FilterDefinition<TEntity> filter, UpdateDefinition<TEntity> update)
-    {
-        var result = await Collection
-                     .UpdateOneAsync(filter, update, new UpdateOptions { IsUpsert = false });
-        return result;
-    }
-    public async Task<TEntity> ReplaceAsync(TId id, ICommandRequest<TEntity> request)
-    {
-        id = id ?? throw new ArgumentNullException(nameof(id));
-        var entity = request.Data ?? throw new ArgumentNullException(nameof(request.Data));
-        await Collection.ReplaceOneAsync(GetIdFilterDefinition(id), entity);
-        return entity;
-    }
-    public async Task<TEntity> DeleteAsync(TId id)
-    {
-        id = id ?? throw new ArgumentNullException(nameof(id));
-        var result = await Collection.DeleteOneAsync(GetIdFilterDefinition(id));
-        return result.IsAcknowledged && result.DeletedCount > 0 ? new TEntity() : throw new Exception("Delete failed");
-    }
-    public async Task<long> GetCountAsync(IQueryRequest<TEntity> request)
-    {
-        var filter = GetFilter(request.Where) ?? GetFilterBuilder().Empty;
-        var result = Collection.Find(filter);
-        return await result.CountDocumentsAsync().ConfigureAwait(false);
     }
     public async Task<IEnumerable<TEntity>> GetAsync(ProjectionDefinition<TEntity>? projection = null, FilterDefinition<TEntity>? filter = null, SortDefinition<TEntity>? sorts = null, IPageContext? pc = null)
     {
@@ -123,6 +62,68 @@ public abstract class MongoRepository<TId, TEntity> : SparkPlug.MongoDb.IReposit
         }
         var result = await query.Skip(pc.Skip).Limit(pc.PageSize).ToListAsync();
         return result;
+    }
+    public async Task<TEntity[]> GetManyAsync(TId[] ids)
+    {
+        var filter = GetFilterBuilder().In(x => x.Id, ids);
+        var result = await GetByFilter(filter).ToListAsync();
+        return result.ToArray();
+    }
+    public async Task<TEntity> CreateAsync(ICommandRequest<TEntity> request)
+    {
+        var entity = request.Data ?? throw new ArgumentNullException(nameof(ICommandRequest<TEntity>.Data));
+        await Collection.InsertOneAsync(entity);
+        return entity;
+    }
+    public async Task<TEntity[]> CreateManyAsync(ICommandRequest<TEntity[]> requests)
+    {
+        var entities = requests.Data ?? throw new ArgumentNullException(nameof(ICommandRequest<TEntity[]>.Data));
+        await Collection.InsertManyAsync(entities);
+        return entities;
+    }
+    public async Task<TEntity> UpdateAsync(TId id, ICommandRequest<TEntity> request)
+    {
+        id = id ?? throw new ArgumentNullException(nameof(id));
+        var entity = request.Data ?? throw new ArgumentNullException(nameof(ICommandRequest<TEntity>.Data));
+        var filter = GetIdFilterDefinition(id);
+        var update = GetUpdateDef(entity);
+        await UpdateAsync(filter, update);
+        return entity;
+    }
+    public async Task<UpdateResult> UpdateAsync(FilterDefinition<TEntity> filter, UpdateDefinition<TEntity> update)
+    {
+        var result = await Collection
+                     .UpdateOneAsync(filter, update, new UpdateOptions { IsUpsert = false });
+        return result;
+    }
+    public async Task<TEntity> PatchAsync(TId id, ICommandRequest<TEntity> request)
+    {
+        id = id ?? throw new ArgumentNullException(nameof(id));
+        var entity = request.Data ?? throw new ArgumentNullException(nameof(ICommandRequest<TEntity>.Data));
+        var filter = GetIdFilterDefinition(id);
+        var update = GetUpdateDef(entity, true);
+        await UpdateAsync(filter, update);
+        return entity;
+    }
+
+    public async Task<TEntity> ReplaceAsync(TId id, ICommandRequest<TEntity> request)
+    {
+        id = id ?? throw new ArgumentNullException(nameof(id));
+        var entity = request.Data ?? throw new ArgumentNullException(nameof(ICommandRequest<TEntity>.Data));
+        await Collection.ReplaceOneAsync(GetIdFilterDefinition(id), entity);
+        return entity;
+    }
+    public async Task<TEntity> DeleteAsync(TId id)
+    {
+        id = id ?? throw new ArgumentNullException(nameof(id));
+        var result = await Collection.DeleteOneAsync(GetIdFilterDefinition(id));
+        return result.IsAcknowledged && result.DeletedCount > 0 ? new TEntity() : throw new Exception("Delete failed");
+    }
+    public async Task<long> GetCountAsync(IQueryRequest<TEntity> request)
+    {
+        var filter = GetFilter(request.Where) ?? GetFilterBuilder().Empty;
+        var result = Collection.Find(filter);
+        return await result.CountDocumentsAsync().ConfigureAwait(false);
     }
     public UpdateDefinition<TEntity> GetUpdateDef(TEntity data, bool patch = false)
     {
@@ -221,6 +222,10 @@ public abstract class MongoRepository<TId, TEntity> : SparkPlug.MongoDb.IReposit
 
 public static class Extention
 {
+    public static FilterDefinition<TEntity>[] GetFilters<TEntity>(this IFilter[] filters, FilterDefinitionBuilder<TEntity> builder)
+    {
+        return filters.Select(x => x.GetFilter(builder)).ToArray();
+    }
     public static FilterDefinition<TEntity> GetFilter<TEntity>(this IFilter filter, FilterDefinitionBuilder<TEntity> builder)
     {
         return filter switch
@@ -232,10 +237,6 @@ public static class Extention
         };
     }
 
-    public static FilterDefinition<TEntity>[] GetFilters<TEntity>(this IFilter[] filters, FilterDefinitionBuilder<TEntity> builder)
-    {
-        return filters.Select(x => x.GetFilter(builder)).ToArray();
-    }
     public static FilterDefinition<TEntity> GetFilter<TEntity>(this ICompositeFilter compositeFilter, FilterDefinitionBuilder<TEntity> builder)
     {
         return compositeFilter.Op switch
