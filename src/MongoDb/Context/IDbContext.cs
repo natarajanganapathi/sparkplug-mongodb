@@ -1,4 +1,5 @@
 namespace SparkPlug.Common;
+
 public interface IDbContext
 {
     IMongoDatabase Database { get; }

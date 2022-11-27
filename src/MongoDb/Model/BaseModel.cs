@@ -1,15 +1,15 @@
 namespace SparkPlug.MongoDb.Model;
 
 [BsonIgnoreExtraElements]
-public abstract class BaseModel
+public abstract class BaseModel<TId>
 {
     [BsonElement("_id")]
     [BsonId]
     [BsonIgnoreIfDefault]
     [BsonRepresentation(BsonType.ObjectId)]
-    public virtual string? Id { get; set; }
+    public virtual TId? Id { get; set; }
 
-    public virtual string? GetId()
+    public virtual TId? GetId()
     {
         return Id;
     }

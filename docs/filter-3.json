@@ -1,0 +1,88 @@
+[
+    {
+        "where": {
+            "compositeFilter": {
+                "op": "AND",
+                "filters": [
+                    {
+                        "fieldFilter": {
+                            "field": {
+                                "fieldPath": "published"
+                            },
+                            "op": "EQUAL",
+                            "value": {
+                                "booleanValue": true
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    },
+    {
+        "where": {
+            "op": "AND",
+            "filters": [
+                {
+                    "field": "published",
+                    "op": "EQUAL",
+                    "value": true
+                }
+            ]
+        }
+    },
+    {
+        "where": {
+            "op": "AND",
+            "filters": [
+                {
+                    "field": "published",
+                    "op": "EQUAL",
+                    "value": true
+                },
+                {
+                    "field": "published",
+                    "op": "EQUAL",
+                    "value": true
+                }
+            ]
+        }
+    },
+    {
+        "where": {
+            "op": "OR",
+            "filters": [
+                {
+                    "op": "AND",
+                    "filters": [
+                        {
+                            "field": "Key1",
+                            "op": "EQUAL",
+                            "value": true
+                        },
+                        {
+                            "field": "Key2",
+                            "op": "NotEQUAL",
+                            "value": true
+                        }
+                    ]
+                },
+                {
+                    "op": "AND",
+                    "filters": [
+                        {
+                            "field": "Key3",
+                            "op": "EQUAL",
+                            "value": true
+                        },
+                        {
+                            "field": "Key4",
+                            "op": "EQUAL",
+                            "value": true
+                        }
+                    ]
+                }
+            ]
+        }
+    }
+]

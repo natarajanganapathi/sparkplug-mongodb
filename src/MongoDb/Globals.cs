@@ -13,6 +13,7 @@ global using System.Threading;
 global using System.Text;
 global using Microsoft.Extensions.Configuration;
 global using Microsoft.Extensions.Logging;
+global using System.Runtime.Serialization;
 
 global using SparkPlug.MongoDb;
 global using SparkPlug.MongoDb.Attributes;
@@ -22,3 +23,6 @@ global using SparkPlug.MongoDb.Repository;
 global using SparkPlug.MongoDb.Config;
 
 global using SparkPlug.Common;
+global using SparkPlug.Api.Abstractions;
+
+global using SparkPlug.Persistence.Abstractions;
