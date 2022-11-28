@@ -1,4 +1,4 @@
-namespace SparkPlug.Common;
+namespace SparkPlug.MongoDb.Context;
 
 public interface IMongoDbContext : IDbContext<MongoClient>
 {

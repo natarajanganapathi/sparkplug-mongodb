@@ -15,3 +15,4 @@ global using SparkPlug.MongoDb.Context;
 
 
 global using SparkPlug.Api.Abstractions;
+global using SparkPlug.Persistence.Abstractions;

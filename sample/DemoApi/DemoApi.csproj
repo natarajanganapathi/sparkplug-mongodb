@@ -9,7 +9,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="6.0.11" /> 
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="7.0.0" /> 
-    <PackageReference Include="SparkPlug.Api.Abstractions" Version="0.0.1-alpha1" />
+    <PackageReference Include="SparkPlug.Api.Abstractions" Version="0.0.1-alpha2" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
   </ItemGroup>
 

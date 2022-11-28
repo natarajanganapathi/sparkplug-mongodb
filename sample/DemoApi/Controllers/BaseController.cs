@@ -1,9 +1,7 @@
-using SparkPlug.Common;
-
 namespace SparkPlug.Sample.DemoApi.Controllers;
 
 [Route("[controller]")]
-public abstract class BaseController<TRepo, TEntity> : ControllerBase where TRepo : SparkPlug.Persistence.Abstractions.IRepository<String, TEntity> where TEntity : BaseModel<String>
+public abstract class BaseController<TRepo, TEntity> : ControllerBase where TRepo : IRepository<String, TEntity> where TEntity : BaseModel<String>
 {
     protected readonly TRepo _repository;
     protected readonly ILogger<BaseController<TRepo, TEntity>> _logger;
@@ -15,7 +13,7 @@ public abstract class BaseController<TRepo, TEntity> : ControllerBase where TRep
     }
 
     [HttpGet]
-    public async Task<IEnumerable<TEntity>> Get(IQueryRequest<TEntity> request)
+    public async Task<IEnumerable<TEntity>> Get(IQueryRequest request)
     {
         var recs = await _repository.ListAsync(request);
         return recs;
