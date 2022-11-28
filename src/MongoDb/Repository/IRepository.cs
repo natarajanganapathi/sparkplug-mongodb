@@ -2,7 +2,7 @@ namespace SparkPlug.Persistence.Abstractions;
 
 public interface IRepository<TId, TEntity>
 {
-    Task<IEnumerable<TEntity>> ListAsync(IQueryRequest<TEntity> request);
+    Task<IEnumerable<TEntity>> ListAsync(IQueryRequest<TEntity>? request);
     Task<TEntity> GetAsync(TId id);
     Task<TEntity[]> GetManyAsync(TId[] ids);
     Task<TEntity> CreateAsync(ICommandRequest<TEntity> request);

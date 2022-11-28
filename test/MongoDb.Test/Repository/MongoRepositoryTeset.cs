@@ -20,11 +20,15 @@ public class MongoRepositoryTest
         _mockRepo = new Mock<IRepository<string, TestModel>>();
     }
     [Fact]
-    public void Test_MongoRepository()
+    public async Task Test_MongoRepository()
     {
         var mockContext = new Mock<IDbContext>();
         var mockLogger = new Mock<ILogger<TestRepo>>();
         var repo = new TestRepo(mockContext.Object, mockLogger.Object);
+        var createResult = await repo.CreateAsync(new CommandRequest<TestModel>(new TestModel() { Name = "Test" }));
+        
         Assert.NotNull(repo);
+        Assert.NotNull(createResult);
+        Assert.Equal("Test", createResult.Name);
     }
 }

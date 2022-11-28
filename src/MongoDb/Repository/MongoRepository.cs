@@ -31,12 +31,12 @@ public abstract class MongoRepository<TId, TEntity> : SparkPlug.Persistence.Abst
         _context = context;
         _logger = logger;
     }
-    public async Task<IEnumerable<TEntity>> ListAsync(IQueryRequest<TEntity> request)
+    public async Task<IEnumerable<TEntity>> ListAsync(IQueryRequest<TEntity>? request)
     {
-        var projection = GetProjection(request.Select);
-        var sort = GetSort(request.Sort);
-        var pc = request.Page;
-        var filter = GetFilter(request.Where);
+        var projection = GetProjection(request?.Select);
+        var sort = GetSort(request?.Sort);
+        var pc = request?.Page ?? new PageContext(1, 100);
+        var filter = GetFilter(request?.Where);
         return await GetAsync(projection, filter, sort, pc);
     }
     public async Task<TEntity> GetAsync(TId id)
