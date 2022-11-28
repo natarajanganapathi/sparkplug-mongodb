@@ -16,7 +16,7 @@ public class DbContextTest
     {
 
         IConfiguration config = new ConfigurationBuilder()
-            .AddInMemoryCollection(new Dictionary<string, string>
+            .AddInMemoryCollection(new Dictionary<string, string?>
             {
                 {"SparkPlugMongoDb:ConnectionString", "mongodb://localhost:27017"},
                 {"SparkPlugMongoDb:DatabaseName", "test"}
@@ -29,11 +29,11 @@ public class DbContextTest
 
         _mockDB.Setup(d => d.GetCollection<MongoDbConfig>(It.IsAny<string>(), default)).Returns(_mockCollection.Object);
 
-        var context = new DbContext(config);
+        var context = new MongoDbContext(config);
         Assert.NotNull(context);
         var collection = context.GetCollection<MongoDbConfig>("Test");
 
         //Act 
-        Assert.Throws<ArgumentException>(() => new DbContext(new ConfigurationBuilder().Build()));
+        Assert.Throws<ArgumentException>(() => new MongoDbContext(new ConfigurationBuilder().Build()));
     }
 }

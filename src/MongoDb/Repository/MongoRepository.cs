@@ -1,8 +1,8 @@
 namespace SparkPlug.MongoDb.Repository;
 
-public abstract class MongoRepository<TId, TEntity> : SparkPlug.Persistence.Abstractions.IRepository<TId, TEntity> where TEntity : BaseModel<TId>, new()
+public abstract class MongoRepository<TId, TEntity> : IRepository<TId, TEntity> where TEntity : BaseModel<TId>, new()
 {
-    internal readonly IDbContext _context;
+    internal readonly IMongoDbContext _context;
     internal readonly ILogger<MongoRepository<TId, TEntity>> _logger;
     private IMongoCollection<TEntity>? _collection;
     public virtual IMongoCollection<TEntity> Collection
@@ -26,17 +26,17 @@ public abstract class MongoRepository<TId, TEntity> : SparkPlug.Persistence.Abst
         }
         return collectionName;
     }
-    protected MongoRepository(IDbContext context, ILogger<MongoRepository<TId, TEntity>> logger)
+    protected MongoRepository(IMongoDbContext context, ILogger<MongoRepository<TId, TEntity>> logger)
     {
         _context = context;
         _logger = logger;
     }
-    public async Task<IEnumerable<TEntity>> ListAsync(IQueryRequest<TEntity>? request)
+    public async Task<IEnumerable<TEntity>> ListAsync(IQueryRequest? request)
     {
         var projection = GetProjection(request?.Select);
         var sort = GetSort(request?.Sort);
         var pc = request?.Page ?? new PageContext(1, 100);
-        var filter = GetFilter(request?.Where);
+        var filter = GetFilterDefinition(request?.Where);
         return await GetAsync(projection, filter, sort, pc);
     }
     public async Task<TEntity> GetAsync(TId id)
@@ -71,20 +71,20 @@ public abstract class MongoRepository<TId, TEntity> : SparkPlug.Persistence.Abst
     }
     public async Task<TEntity> CreateAsync(ICommandRequest<TEntity> request)
     {
-        var entity = request.Data ?? throw new CreateEntityException();
+        var entity = request.Data ?? throw new CreateEntityException("Entity is null");
         await Collection.InsertOneAsync(entity);
         return entity;
     }
     public async Task<TEntity[]> CreateManyAsync(ICommandRequest<TEntity[]> requests)
     {
-        var entities = requests.Data ?? throw new CreateEntityException();
+        var entities = requests.Data ?? throw new CreateEntityException("Entities are null");
         await Collection.InsertManyAsync(entities);
         return entities;
     }
     public async Task<TEntity> UpdateAsync(TId id, ICommandRequest<TEntity> request)
     {
         id = id ?? throw new ArgumentNullException(nameof(id));
-        var entity = request.Data ?? throw new UpdateEntityException();
+        var entity = request.Data ?? throw new UpdateEntityException("Entity is null");
         var filter = GetIdFilterDefinition(id);
         var update = GetUpdateDef(entity);
         await UpdateAsync(filter, update);
@@ -92,14 +92,13 @@ public abstract class MongoRepository<TId, TEntity> : SparkPlug.Persistence.Abst
     }
     public async Task<UpdateResult> UpdateAsync(FilterDefinition<TEntity> filter, UpdateDefinition<TEntity> update)
     {
-        var result = await Collection
-                     .UpdateOneAsync(filter, update, new UpdateOptions { IsUpsert = false });
+        var result = await Collection.UpdateOneAsync(filter, update, new UpdateOptions { IsUpsert = false });
         return result;
     }
     public async Task<TEntity> PatchAsync(TId id, ICommandRequest<TEntity> request)
     {
         id = id ?? throw new ArgumentNullException(nameof(id));
-        var entity = request.Data ?? throw new UpdateEntityException();
+        var entity = request.Data ?? throw new UpdateEntityException("Entity is null");
         var filter = GetIdFilterDefinition(id);
         var update = GetUpdateDef(entity, true);
         await UpdateAsync(filter, update);
@@ -109,19 +108,19 @@ public abstract class MongoRepository<TId, TEntity> : SparkPlug.Persistence.Abst
     public async Task<TEntity> ReplaceAsync(TId id, ICommandRequest<TEntity> request)
     {
         id = id ?? throw new ArgumentNullException(nameof(id));
-        var entity = request.Data ?? throw new UpdateEntityException();
+        var entity = request.Data ?? throw new UpdateEntityException("Entity is null");
         await Collection.ReplaceOneAsync(GetIdFilterDefinition(id), entity);
         return entity;
     }
     public async Task<TEntity> DeleteAsync(TId id)
     {
-        id = id ?? throw new DeleteEntityException();
+        id = id ?? throw new DeleteEntityException("Id is null");
         var result = await Collection.DeleteOneAsync(GetIdFilterDefinition(id));
-        return result.IsAcknowledged && result.DeletedCount > 0 ? new TEntity() : throw new Exception("Delete failed");
+        return result.IsAcknowledged && result.DeletedCount > 0 ? new TEntity() : throw new DeleteEntityException("Nothing is deleted");
     }
-    public async Task<long> GetCountAsync(IQueryRequest<TEntity> request)
+    public async Task<long> GetCountAsync(IQueryRequest request)
     {
-        var filter = GetFilter(request.Where) ?? GetFilterBuilder().Empty;
+        var filter = GetFilterDefinition(request.Where) ?? GetFilterBuilder().Empty;
         var result = Collection.Find(filter);
         return await result.CountDocumentsAsync().ConfigureAwait(false);
     }
@@ -195,12 +194,12 @@ public abstract class MongoRepository<TId, TEntity> : SparkPlug.Persistence.Abst
         var projectionDefArray = projection?.Select(x => GetProjectionBuilder().Include(x)).ToArray();
         return projectionDefArray != null && projectionDefArray.Length > 0 ? GetProjectionBuilder().Combine(projectionDefArray) : null;
     }
-    private SortDefinition<TEntity>? GetSort(Order[]? orders)
+    private SortDefinition<TEntity>? GetSort(IOrder[]? orders)
     {
         var sortDef = orders != null ? GetSortDef(orders) : null;
         return sortDef != null && sortDef.Length > 0 ? GetSortBuilder().Combine(sortDef) : null;
     }
-    private SortDefinition<TEntity>[] GetSortDef(Order[] orders)
+    private SortDefinition<TEntity>[] GetSortDef(IOrder[] orders)
     {
         var sortDef = new SortDefinition<TEntity>[orders.Length];
         for (int i = 0; i < orders.Length; i++)
@@ -211,43 +210,42 @@ public abstract class MongoRepository<TId, TEntity> : SparkPlug.Persistence.Abst
         }
         return sortDef;
     }
-    private FilterDefinition<TEntity>? GetFilter(IFilter? filter)
+    private FilterDefinition<TEntity>? GetFilterDefinition(IFilter? filter)
     {
-        filter = filter ?? throw new GetEntityException();
         var builder = GetFilterBuilder();
-        return filter.GetFilter(builder);
+        return filter == null ? builder.Empty : filter.GetFilterDefinition(builder);
     }
     # endregion
 }
 
 public static class Extention
 {
-    public static FilterDefinition<TEntity>[] GetFilters<TEntity>(this IFilter[] filters, FilterDefinitionBuilder<TEntity> builder)
+    public static FilterDefinition<TEntity>[] GetFilterDefinitions<TEntity>(this IFilter[] filters, FilterDefinitionBuilder<TEntity> builder)
     {
-        return filters.Select(x => x.GetFilter(builder)).ToArray();
+        return filters.Select(x => x.GetFilterDefinition(builder)).ToArray();
     }
-    public static FilterDefinition<TEntity> GetFilter<TEntity>(this IFilter filter, FilterDefinitionBuilder<TEntity> builder)
+    public static FilterDefinition<TEntity> GetFilterDefinition<TEntity>(this IFilter filter, FilterDefinitionBuilder<TEntity> builder)
     {
         return filter switch
         {
-            ICompositeFilter compositeFilter => compositeFilter.GetFilter(builder),
-            IFieldFilter fieldFilter => fieldFilter.GetFilter(builder),
-            IUnaryFilter unaryFilter => unaryFilter.GetFilter(builder),
+            ICompositeFilter compositeFilter => compositeFilter.GetFilterDefinition(builder),
+            IFieldFilter fieldFilter => fieldFilter.GetFilterDefinition(builder),
+            IUnaryFilter unaryFilter => unaryFilter.GetFilterDefinition(builder),
             _ => throw new NotSupportedException($"Filter type {filter.GetType().Name} is not supported")
         };
     }
 
-    public static FilterDefinition<TEntity> GetFilter<TEntity>(this ICompositeFilter compositeFilter, FilterDefinitionBuilder<TEntity> builder)
+    public static FilterDefinition<TEntity> GetFilterDefinition<TEntity>(this ICompositeFilter compositeFilter, FilterDefinitionBuilder<TEntity> builder)
     {
         return compositeFilter.Op switch
         {
-            CompositeOperator.And => builder.And(compositeFilter.Filters?.GetFilters(builder)),
-            CompositeOperator.Or => builder.Or(compositeFilter.Filters?.GetFilters(builder)),
-            _ => throw new ArgumentException("Invalid composite filter operation")
+            CompositeOperator.And => builder.And(compositeFilter.Filters?.GetFilterDefinitions(builder)),
+            CompositeOperator.Or => builder.Or(compositeFilter.Filters?.GetFilterDefinitions(builder)),
+            _ => throw new QueryEntityException("Invalid composite filter operation")
         };
     }
 
-    public static FilterDefinition<TEntity> GetFilter<TEntity>(this IFieldFilter fieldFilter, FilterDefinitionBuilder<TEntity> builder)
+    public static FilterDefinition<TEntity> GetFilterDefinition<TEntity>(this IFieldFilter fieldFilter, FilterDefinitionBuilder<TEntity> builder)
     {
         return fieldFilter.Op switch
         {
@@ -259,17 +257,17 @@ public static class Extention
             FieldOperator.LessThanOrEqual => builder.Lte(fieldFilter.Field, fieldFilter.Value),
             FieldOperator.In => builder.In(fieldFilter.Field, fieldFilter.Value as IEnumerable<object>),
             FieldOperator.NotIn => builder.Nin(fieldFilter.Field, fieldFilter.Value as IEnumerable<object>),
-            _ => throw new ArgumentException("Invalid field filter operation")
+            _ => throw new QueryEntityException("Invalid field filter operation")
         };
     }
 
-    public static FilterDefinition<TEntity> GetFilter<TEntity>(this IUnaryFilter unaryFilter, FilterDefinitionBuilder<TEntity> builder)
+    public static FilterDefinition<TEntity> GetFilterDefinition<TEntity>(this IUnaryFilter unaryFilter, FilterDefinitionBuilder<TEntity> builder)
     {
         return unaryFilter.Op switch
         {
             UnaryOperator.IsNull => builder.Eq(unaryFilter.Field, BsonNull.Value),
             UnaryOperator.IsNotNull => builder.Ne(unaryFilter.Field, BsonNull.Value),
-            _ => throw new ArgumentException("Invalid unary filter operation")
+            _ => throw new QueryEntityException("Invalid unary filter operation")
         };
     }
 }
