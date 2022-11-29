@@ -20,9 +20,9 @@ public class MongoDbContext : IMongoDbContext
         _database = _mongoClient.GetDatabase(config.DatabaseName);
     }
     public IMongoDatabase Database => _database;
-    public IMongoCollection<T> GetCollection<T>(string collectionName)
+    public IMongoCollection<TEntity> GetCollection<TEntity>(string collectionName)
     {
-        return _database.GetCollection<T>(collectionName);
+        return _database.GetCollection<TEntity>(collectionName);
     }
 
     public MongoClient GetClient(string connectionString)
