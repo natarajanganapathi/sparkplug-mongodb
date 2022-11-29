@@ -7,15 +7,14 @@ builder.Services.AddControllers().AddNewtonsoftJson();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// DI
-builder.Services.AddSingleton<DbContext>();
-builder.Services.AddScoped<UserRepository>();
-
 IConfiguration config = new ConfigurationBuilder()
    .AddJsonFile("appsettings.json")
    .AddEnvironmentVariables()
    .Build();
 
+// DI
+builder.Services.AddSingleton<IMongoDbContext, MongoDbContext>();
+builder.Services.AddScoped<UserRepository>();
 builder.Services.AddSingleton<IConfiguration>(config); 
 
 var app = builder.Build();

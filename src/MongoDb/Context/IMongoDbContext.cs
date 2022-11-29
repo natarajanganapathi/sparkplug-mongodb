@@ -1,6 +1,6 @@
-namespace SparkPlug.Common;
+namespace SparkPlug.MongoDb.Context;
 
-public interface IDbContext
+public interface IMongoDbContext : IDbContext<MongoClient>
 {
     IMongoDatabase Database { get; }
     IMongoCollection<T> GetCollection<T>(string collectionName);

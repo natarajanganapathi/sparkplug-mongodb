@@ -1,7 +1,7 @@
 namespace SparkPlug.Sample.DemoApi.Models;
 
 [Collection("Users")]
-public class User : BaseModel
+public class User : BaseModel<String>
 {
     public string? Name { get; set; }
     public string? Email { get; set; }

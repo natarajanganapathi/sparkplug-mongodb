@@ -1,6 +1,7 @@
 namespace SparkPlug.Sample.DemoApi.Repositories;
-public class UserRepository: BaseRepository<User>
+
+public class UserRepository: MongoRepository<String, User>
 {
-      public UserRepository(DbContext context, ILogger<UserRepository> logger) : base(context, logger) { }
+      public UserRepository(IMongoDbContext context, ILogger<UserRepository> logger) : base(context, logger) { }
     
 }
