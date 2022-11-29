@@ -1,6 +1,6 @@
 namespace SparkPlug.Persistence.Abstractions;
 
-public interface IDbContext<TClient>
+public interface IDbContext<out TClient>
 {
     TClient GetClient(string connectionString);
 }
