@@ -60,7 +60,7 @@ jobs:
           echo "Sonar Scanner Analysis begin"
           .sonar\scanner\dotnet-sonarscanner begin /k:"natarajanganapathi_sparkplug-mongodb" /o:"natarajan-ganapathi" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.cs.vscoveragexml.reportsPaths=coverage.xml /d:sonar.host.url="${{ secrets.SONAR_HOST_URL }}"
           echo "Build Start"
-          dotnet build src/MongoDb/SparkPlug.MongoDb.csproj --no-incremental
+          dotnet build src/SparkPlug.MongoDb/SparkPlug.MongoDb.csproj --no-incremental
           echo "Sonar Scanner Analysis end"
           .sonar\scanner\dotnet-sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
   # sonarcloud:

@@ -15,7 +15,8 @@ IConfiguration config = new ConfigurationBuilder()
 // DI
 builder.Services.AddSingleton<IMongoDbContext, MongoDbContext>();
 builder.Services.AddScoped<UserRepository>();
-builder.Services.AddSingleton<IConfiguration>(config); 
+builder.Services.AddScoped<PersonRepository>();
+builder.Services.AddSingleton<IConfiguration>(config);
 
 var app = builder.Build();
 

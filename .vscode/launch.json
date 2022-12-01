@@ -26,7 +26,7 @@
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
-            "program": "${workspaceFolder}/src/MongoDb/bin/Debug/net6.0/SparkPlug.MongoDb.dll",
+            "program": "${workspaceFolder}/src/SparkPlug.MongoDb/bin/Debug/net6.0/SparkPlug.MongoDb.dll",
             "args": [],
             "cwd": "${workspaceFolder}",
             "console": "internalConsole",

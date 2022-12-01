@@ -28,6 +28,6 @@ jobs:
       with:
         dotnet-version: ${{ matrix.dotnet-version }}
     - name: Restore dependencies
-      run: dotnet restore src/MongoDb/SparkPlug.MongoDb.csproj
+      run: dotnet restore src/SparkPlug.MongoDb/SparkPlug.MongoDb.csproj
     - name: Build
-      run: dotnet build src/MongoDb/SparkPlug.MongoDb.csproj --no-restore
+      run: dotnet build src/SparkPlug.MongoDb/SparkPlug.MongoDb.csproj --no-restore

@@ -26,7 +26,7 @@ public class MongoRepositoryTest
         var mockLogger = new Mock<ILogger<TestRepo>>();
         var repo = new TestRepo(mockContext.Object, mockLogger.Object);
         // var createResult = await repo.CreateAsync(new CommandRequest<TestModel>(new TestModel() { Name = "Test" }));
-        
+
         Assert.NotNull(repo);
         // Assert.NotNull(createResult);
         // Assert.Equal("Test", createResult.Name);
