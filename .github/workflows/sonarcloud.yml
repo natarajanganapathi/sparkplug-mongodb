@@ -56,7 +56,7 @@ jobs:
         shell: powershell
         run: |
           echo "Unit Test Start"
-          .coverage\coverage\dotnet-coverage collect -f xml  -o 'coverage.xml' dotnet test test/MongoDb.Test/SparkPlug.MongoDb.Test.csproj -c release --verbosity normal
+          .coverage\coverage\dotnet-coverage collect -f xml  -o 'coverage.xml' dotnet test test/SparkPlug.MongoDb.Test/SparkPlug.MongoDb.Test.csproj -c release --verbosity normal
           echo "Sonar Scanner Analysis begin"
           .sonar\scanner\dotnet-sonarscanner begin /k:"natarajanganapathi_sparkplug-mongodb" /o:"natarajan-ganapathi" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.cs.vscoveragexml.reportsPaths=coverage.xml /d:sonar.host.url="${{ secrets.SONAR_HOST_URL }}"
           echo "Build Start"

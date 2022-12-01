@@ -5,11 +5,11 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{51933AB4-E8AA-4B78-9F18-425F4040AE87}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MongoDb", "src\SparkPlug.MongoDb\SparkPlug.MongoDb.csproj", "{0196CF81-E246-4280-B19E-9715F80D979F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SparkPlug.MongoDb", "src\SparkPlug.MongoDb\SparkPlug.MongoDb.csproj", "{0196CF81-E246-4280-B19E-9715F80D979F}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{943E0DA3-0E55-446B-AA08-07A7ED9182CD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MongoDb.Test", "test\SparkPlug.MongoDb.Test\SparkPlug.MongoDb.Test.csproj", "{A5773EBC-1EF6-4D64-BE89-3F6A1A6D25F0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SparkPlug.MongoDb.Test", "test\SparkPlug.MongoDb.Test\SparkPlug.MongoDb.Test.csproj", "{A5773EBC-1EF6-4D64-BE89-3F6A1A6D25F0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
